@@ -4,29 +4,130 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --primary: 238.7 83.5% 66.7%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --background: 42 12% 91%;       /* #EDEBE5 Unify Canvas */
+    --foreground: 228 23% 19%;      /* #24283A Primary Text */
+    --card: 45 20% 97%;             /* #F8F7F3 Surface */
+    --card-foreground: 228 23% 19%;
+    --primary: 239 52% 55%;         /* #5052C9 Primary Brand */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 48 11% 93%;        /* #EFEEE9 Header/Footer */
+    --secondary-foreground: 228 22% 21%; /* #292D40 Secondary Text */
+    --muted: 42 12% 91%;            /* #EDEBE5 */
+    --muted-foreground: 228 15% 32%; /* #464B5E Muted Text */
+    --accent: 242 22% 91%;          /* #E5E4EE Primary Tint */
+    --accent-foreground: 239 52% 55%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 238.7 83.5% 66.7%;
-    --radius: 0.5rem;
+    --border: 50 5% 76%;            /* #C6C5BE Border */
+    --input: 47 7% 73%;             /* #BDBCB5 Input Border */
+    --ring: 239 52% 55%;            /* #5052C9 */
+    --radius: 1.25rem;              /* 20px */
+  }
+
+  body {
+    color: #24283A;
+    background-color: #EDEBE5;
+    font-family: var(--font-inter), sans-serif;
+    font-weight: 500;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-outfit), sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #24283A;
+  }
+
+  code, kbd, samp, pre {
+    font-family: var(--font-mono), monospace;
   }
 }
 
-body {
-  color: hsl(var(--foreground));
-  background: hsl(var(--background));
-  font-feature-settings: "rlig" 1, "calt" 1;
+@layer components {
+  /* Unify Card Baseline */
+  .unify-card {
+    background-color: #F8F7F3;
+    border: 1.5px solid #C6C5BE;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px rgba(35, 39, 55, 0.06);
+  }
+
+  /* Unify Primary Button */
+  .unify-btn-primary {
+    height: 44px;
+    padding-left: 28px;
+    padding-right: 28px;
+    border-radius: 11px;
+    background: linear-gradient(90deg, #7779D8 0%, #5052C9 100%);
+    color: #FFFFFF;
+    font-weight: 600;
+    box-shadow: 0 2px 10px rgba(80, 82, 201, 0.22);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .unify-btn-primary:hover {
+    background: linear-gradient(90deg, #6b6dd2 0%, #4143A7 100%);
+    box-shadow: 0 4px 14px rgba(80, 82, 201, 0.28);
+  }
+
+  /* Unify Secondary Button */
+  .unify-btn-secondary {
+    height: 44px;
+    padding-left: 24px;
+    padding-right: 24px;
+    border-radius: 12px;
+    background-color: #F8F7F3;
+    border: 1.5px solid #BDBCB5;
+    color: #292D40;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s ease;
+  }
+  .unify-btn-secondary:hover {
+    background-color: #EDEBE5;
+    border-color: #C6C5BE;
+  }
+
+  /* Unify Input */
+  .unify-input {
+    height: 44px;
+    background-color: #FBFAF7;
+    border: 1.5px solid #BDBCB5;
+    border-radius: 11px;
+    color: #24283A;
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+  }
+  .unify-input::placeholder {
+    color: rgba(70, 75, 94, 0.6);
+  }
+  .unify-input:focus {
+    outline: none;
+    border-color: #5B5CE2;
+    box-shadow: 0 0 0 3px rgba(80, 82, 201, 0.18);
+  }
+
+  /* Unify Header */
+  .unify-header {
+    height: 72px;
+    background-color: rgba(248, 247, 243, 0.90);
+    backdrop-filter: blur(16px);
+    border-bottom: 1.5px solid #C6C5BE;
+  }
+
+  /* Unify AI Insights Container */
+  .unify-ai-insight {
+    background: linear-gradient(135deg, #EEF0FA 0%, #E5E4EE 100%);
+    border: 2px solid #BFC1E4;
+    border-radius: 16px;
+    color: #24283A;
+  }
 }

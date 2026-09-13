@@ -139,25 +139,25 @@ export function CopilotPanel({ ticketId, customerName, onAnalysisComplete }: Cop
   const isMediumConfidence = confidenceScore !== null && confidenceScore >= 70 && confidenceScore < 90;
 
   return (
-    <div className="bg-white rounded-lg border border-slate-200/90 shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-slate-900 to-indigo-950 text-white flex items-center justify-between">
+      <div className="p-4 bg-[#24283A] text-white flex items-center justify-between border-b border-[#3E4358]">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center text-indigo-300">
+          <div className="w-8 h-8 rounded-[8px] bg-[#3E4358] border border-[#5052C9] flex items-center justify-center text-[#BFC1E4]">
             <Bot className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-200 flex items-center gap-1.5">
+            <h3 className="text-xs font-heading font-bold uppercase tracking-wider text-white flex items-center gap-1.5">
               ResolveX AI Support Copilot
             </h3>
-            <p className="text-[10px] text-slate-400">Context-Aware Investigation & Response Engine</p>
+            <p className="text-[10px] text-[#A2A4B8]">Context-Aware Investigation &amp; Response Engine</p>
           </div>
         </div>
 
         {data && (
           <div className="flex items-center gap-2">
             <span
-              className={`text-[10px] font-bold px-2 py-0.5 rounded border font-mono ${
+              className={`text-[10px] font-bold px-2 py-0.5 rounded-[6px] border font-mono ${
                 isHighConfidence
                   ? "bg-emerald-950/80 text-emerald-400 border-emerald-500/40"
                   : isMediumConfidence
@@ -174,19 +174,19 @@ export function CopilotPanel({ ticketId, customerName, onAnalysisComplete }: Cop
       <div className="p-5 space-y-5 flex-1">
         {/* Trigger Button if not run */}
         {!data && !loading && (
-          <div className="p-6 bg-slate-50 border border-dashed border-slate-300 rounded-lg text-center space-y-3">
-            <div className="w-10 h-10 mx-auto rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <div className="p-6 bg-[#FBFAF7] border border-dashed border-[#BDBCB5] rounded-[16px] text-center space-y-3">
+            <div className="w-10 h-10 mx-auto rounded-full bg-[#E5E4EE] text-[#5052C9] flex items-center justify-center">
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <h4 className="text-sm font-bold text-slate-900">Run Single-Case AI Investigation</h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+              <h4 className="text-sm font-heading font-bold text-[#24283A]">Run Single-Case AI Investigation</h4>
+              <p className="text-xs text-[#464B5E] max-w-sm mx-auto mt-1">
                 Audits transactions, cross-references service logs, queries corporate policy RAG, and generates a grounded response.
               </p>
             </div>
             <button
               onClick={runInvestigation}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-md shadow-xs transition-colors cursor-pointer"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6A6CD2] hover:to-[#4547B8] text-white text-xs font-heading font-semibold rounded-[11px] shadow-[0_2px_10px_rgba(80,82,201,0.22)] transition-all cursor-pointer"
             >
               <Zap className="w-3.5 h-3.5" /> Start Investigation
             </button>
@@ -283,38 +283,38 @@ export function CopilotPanel({ ticketId, customerName, onAnalysisComplete }: Cop
             </div>
 
             {/* 4. Suggested Grounded Response */}
-            <div className="space-y-2 pt-2 border-t border-slate-100">
+            <div className="space-y-2 pt-2 border-t border-[#D8D6CE]">
               <div className="flex items-center justify-between">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-indigo-600" /> Grounded Suggested Response
+                <h4 className="text-xs font-heading font-bold uppercase tracking-wider text-[#464B5E] flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-[#5052C9]" /> Grounded Suggested Response
                 </h4>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowSources(true)}
-                    className="text-[11px] text-indigo-600 hover:text-indigo-800 font-semibold inline-flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] text-[#5052C9] hover:text-[#24283A] font-heading font-semibold inline-flex items-center gap-1 cursor-pointer"
                   >
                     <BookOpen className="w-3 h-3" /> Sources Used ({data.relevant_policies.length})
                   </button>
                 </div>
               </div>
 
-              <div className="p-3 bg-indigo-50/40 rounded-lg border border-indigo-100 text-xs text-slate-900 leading-relaxed space-y-3">
+              <div className="p-3 bg-gradient-to-br from-[#EEF0FA] to-[#E5E4EE] rounded-[16px] border-2 border-[#BFC1E4] text-xs text-[#24283A] leading-relaxed space-y-3">
                 <p className="whitespace-pre-line font-sans">{data.ai_response.suggested_response}</p>
 
-                <div className="flex items-center justify-between pt-2 border-t border-indigo-100 text-[11px]">
-                  <span className="text-slate-400 font-mono text-[10px]">
+                <div className="flex items-center justify-between pt-2 border-t border-[#BFC1E4] text-[11px]">
+                  <span className="text-[#73778B] font-mono text-[10px]">
                     No action executed (Safety Gate Active)
                   </span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={runInvestigation}
-                      className="px-2.5 py-1 text-slate-600 hover:text-slate-900 bg-white border border-slate-200 rounded font-medium inline-flex items-center gap-1 cursor-pointer text-[11px]"
+                      className="px-2.5 py-1 text-[#24283A] hover:bg-[#EDEBE5] bg-[#FBFAF7] border border-[#BDBCB5] rounded-[8px] font-heading font-semibold inline-flex items-center gap-1 cursor-pointer text-[11px] shadow-xs"
                     >
-                      <RotateCw className="w-3 h-3" /> Regenerate
+                      <RotateCw className="w-3 h-3 text-[#73778B]" /> Regenerate
                     </button>
                     <button
                       onClick={copyToClipboard}
-                      className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-medium inline-flex items-center gap-1 cursor-pointer text-[11px] shadow-xs"
+                      className="px-2.5 py-1 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6A6CD2] hover:to-[#4547B8] text-white rounded-[8px] font-heading font-semibold inline-flex items-center gap-1 cursor-pointer text-[11px] shadow-[0_2px_10px_rgba(80,82,201,0.22)]"
                     >
                       {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                       {copied ? "Copied!" : "Copy Response"}
@@ -325,10 +325,10 @@ export function CopilotPanel({ ticketId, customerName, onAnalysisComplete }: Cop
             </div>
 
             {/* 5. Recommended Next Step Banner */}
-            <div className="p-3 bg-amber-50/80 rounded-lg border border-amber-200/80 text-xs text-amber-950 flex items-start gap-2.5">
+            <div className="p-3 bg-amber-50/90 rounded-[14px] border border-amber-200 text-xs text-amber-950 flex items-start gap-2.5 shadow-xs">
               <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
               <div>
-                <span className="font-bold uppercase tracking-wider text-[10px] text-amber-800">
+                <span className="font-heading font-bold uppercase tracking-wider text-[10px] text-amber-800">
                   Recommended Support Action:
                 </span>
                 <p className="mt-0.5 text-xs font-semibold text-amber-900">{data.recommended_next_step}</p>

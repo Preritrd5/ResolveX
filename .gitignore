@@ -49,8 +49,11 @@ venv.bak/
 .env.development.local
 .env.test.local
 .env.production.local
+.env.example
 *.pem
 *.key
+.env.production
+.env.production.local
 
 # IDE
 .idea/

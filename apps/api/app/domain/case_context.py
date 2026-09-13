@@ -76,8 +76,31 @@ class CaseContext(BaseModel):
     evidence: List[EvidenceItem] = []
     overall_confidence: float = 0.0
     
-    # Routing & Action Recommendation
     routing: Optional[RoutingDecision] = None
     suggested_response: Optional[AIResponse] = None
     recommended_next_step: Optional[str] = None
     current_state: str = "assembled"
+
+    @property
+    def linked_payment(self) -> Optional[PaymentSchema]:
+        if not self.payments:
+            return None
+        orphaned = [p for p in self.payments if not p.order_id]
+        if orphaned:
+            return sorted(orphaned, key=lambda p: p.created_at or "", reverse=True)[0]
+        return sorted(self.payments, key=lambda p: p.created_at or "", reverse=True)[0]
+
+    @property
+    def linked_order(self) -> Optional[OrderSchema]:
+        if not self.orders:
+            return None
+        lp = self.linked_payment
+        if lp:
+            if not lp.order_id:
+                return None
+            matching = [o for o in self.orders if o.id == lp.order_id]
+            if matching:
+                return matching[0]
+        return self.orders[0]
+
+

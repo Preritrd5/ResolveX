@@ -12,6 +12,7 @@ INSERT INTO users (id, org_id, email, full_name, role, is_active) VALUES ('00000
 INSERT INTO users (id, org_id, email, full_name, role, is_active) VALUES ('00000000-0000-0000-0000-000000000011', '00000000-0000-0000-0000-000000000001', 'alex.rivera@acmecommerce.com', 'Alex Rivera', 'support_agent', TRUE) ON CONFLICT (org_id, email) DO NOTHING;
 INSERT INTO users (id, org_id, email, full_name, role, is_active) VALUES ('00000000-0000-0000-0000-000000000012', '00000000-0000-0000-0000-000000000001', 'jordan.lee@acmecommerce.com', 'Jordan Lee', 'support_agent', TRUE) ON CONFLICT (org_id, email) DO NOTHING;
 INSERT INTO users (id, org_id, email, full_name, role, is_active) VALUES ('00000000-0000-0000-0000-000000000013', '00000000-0000-0000-0000-000000000001', 'maya.patel@acmecommerce.com', 'Maya Patel', 'lead_investigator', TRUE) ON CONFLICT (org_id, email) DO NOTHING;
+INSERT INTO users (id, org_id, email, full_name, role, is_active) VALUES ('00000000-0000-0000-0000-000000000014', '00000000-0000-0000-0000-000000000001', 'sarah.jenkins@acmecommerce.com', 'Sarah Jenkins', 'support_manager', TRUE) ON CONFLICT (org_id, email) DO NOTHING;
 
 -- Products
 INSERT INTO products (id, org_id, sku, name, category, price_cents, currency, is_active) VALUES ('7cee5360-b90e-5771-8eb6-cd56c2c0f190', '00000000-0000-0000-0000-000000000001', 'SKU-AUD-1000', 'AeroTune Wireless Noise-Cancelling Headphones', 'Audio', 19999, 'USD', TRUE) ON CONFLICT (org_id, sku) DO NOTHING;

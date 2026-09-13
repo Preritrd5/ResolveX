@@ -1,7 +1,7 @@
 """
-ResolveX Single-Case Investigation Engine
-Orchestrates context assembly, intent classification, specialist investigations,
-evidence persistence, knowledge grounding, intelligent routing, and response synthesis.
+ResolveX Multi-Agent Investigation Service (LangGraph Orchestrated)
+Coordinates single-case investigations through a compiled LangGraph DAG with
+Supervisor planning, dynamic specialist dispatch, evidence aggregation, and audit persistence.
 """
 
 import uuid
@@ -14,27 +14,46 @@ from apps.api.app.domain.schemas import (
     SpecialistFinding,
     EvidenceItem,
     AIResponse,
-    RoutingDecision
+    RoutingDecision,
+    InvestigationStepSchema,
+    AgentRunSchema,
+    SupervisorDecision,
+    IntentClassification,
+    KnowledgeSnippet
 )
 from apps.api.app.services.case_context_service import case_context_service
 from apps.api.app.services.ai.intent_service import intent_service
 from apps.api.app.services.ai.router_service import router_service
-from apps.api.app.services.ai.response_service import response_service
 from apps.api.app.services.knowledge_service import knowledge_service
-from apps.api.app.services.specialists.billing_investigator import billing_investigator
-from apps.api.app.services.specialists.order_investigator import order_investigator
-from apps.api.app.services.specialists.refund_investigator import refund_investigator
-from apps.api.app.services.specialists.account_investigator import account_investigator
-from apps.api.app.services.specialists.technical_investigator import technical_investigator
-from apps.api.app.services.specialists.policy_investigator import policy_investigator
+from apps.api.app.services.orchestrator.graph import investigation_graph
+from apps.api.app.services.orchestrator.state import InvestigationState
+from apps.api.app.services.agent_service import agent_service
 from apps.api.app.core.logging import logger
 
 class InvestigationService:
-    async def run_investigation(self, ticket_id: str) -> Optional[InvestigationResult]:
+    """
+    Orchestrates the LangGraph multi-agent investigation workflow with idempotency and audit persistence.
+    """
+
+    def __init__(self):
+        self._cached_results: Dict[str, InvestigationResult] = {}
+
+    async def run_investigation(self, ticket_id: str, force_rerun: bool = False) -> Optional[InvestigationResult]:
         """
-        Executes an end-to-end single-case investigation pipeline for a ticket.
+        Executes or retrieves an idempotent multi-agent investigation for a ticket.
         """
         start_time = datetime.now(timezone.utc).isoformat()
+
+        # Idempotency Check: if already completed and not forced rerun, retrieve existing
+        if not force_rerun:
+            if ticket_id in self._cached_results:
+                logger.info(f"Returning cached in-memory investigation {self._cached_results[ticket_id].investigation_id} for ticket {ticket_id} (idempotent).")
+                return self._cached_results[ticket_id]
+            existing = await self.get_investigation_for_ticket(ticket_id)
+            if existing and existing.status in ("completed", "partial"):
+                logger.info(f"Returning cached database investigation {existing.investigation_id} for ticket {ticket_id} (idempotent).")
+                return existing
+
 
         # Step 1: Assemble CaseContext from Supabase
         context = await case_context_service.assemble_context(ticket_id)
@@ -57,49 +76,7 @@ class InvestigationService:
         policies = await knowledge_service.get_relevant_policies_for_case(context)
         context.relevant_policies = policies
 
-        # Step 4: Dispatch Relevant Specialists & Collect Evidence
-        findings: List[SpecialistFinding] = []
-        evidence_list: List[EvidenceItem] = []
-
-        # Account verification
-        f_acc, e_acc = account_investigator.investigate(context)
-        findings.append(f_acc)
-        if e_acc:
-            evidence_list.append(e_acc)
-
-        # Billing and Order investigations
-        intent_cat = intent.intent.lower()
-        if any(k in intent_cat for k in ["payment", "order", "billing", "refund", "subscription"]):
-            f_bill, e_bill = billing_investigator.investigate(context)
-            findings.append(f_bill)
-            if e_bill:
-                evidence_list.append(e_bill)
-
-            f_ord, e_ord = order_investigator.investigate(context)
-            findings.append(f_ord)
-            if e_ord:
-                evidence_list.append(e_ord)
-
-        # Refund investigation
-        if "refund" in intent_cat:
-            f_ref, e_ref = refund_investigator.investigate(context)
-            findings.append(f_ref)
-            if e_ref:
-                evidence_list.append(e_ref)
-
-        # Technical / Telemetry inspection
-        f_tech, e_tech = technical_investigator.investigate(context)
-        findings.append(f_tech)
-        if e_tech:
-            evidence_list.append(e_tech)
-
-        # Policy & Compliance inspection
-        f_pol, e_pol = policy_investigator.investigate(context)
-        findings.append(f_pol)
-        if e_pol:
-            evidence_list.append(e_pol)
-
-        # Step 5: Determine Routing Decision
+        # Step 4: Determine Routing Decision
         routing = router_service.determine_route(
             intent=intent,
             sentiment=sentiment,
@@ -108,37 +85,72 @@ class InvestigationService:
         )
         context.routing = routing
 
-        # Step 6: Generate Grounded AI Support Response
-        ai_resp = await response_service.generate_response(
-            case_context=context,
-            findings=findings,
-            evidence=evidence_list,
-            policies=policies
-        )
-        context.suggested_response = ai_resp
-
-        # Step 7: Persist Investigation and Evidence Records
+        # Step 5: Initialize LangGraph State
         inv_id = str(uuid.uuid4())
-        overall_confidence = round(
-            sum([f.confidence for f in findings]) / max(len(findings), 1),
-            2
-        )
+        initial_state: InvestigationState = {
+            "case_id": inv_id,
+            "ticket_id": ticket_id,
+            "org_id": context.ticket.org_id,
+            "case_context": context,
+            "intent": intent,
+            "urgency": intent.urgency,
+            "sentiment": sentiment,
+            "complexity": intent.complexity,
+            "requested_specialists": [],
+            "completed_specialists": [],
+            "agent_findings": [],
+            "evidence": [],
+            "knowledge_results": policies,
+            "investigation_steps": [],
+            "agent_runs": [],
+            "agent_errors": [],
+            "confidence": 0.0,
+            "supervisor_decision": None,
+            "supervisor_summary": None,
+            "recommended_next_step": None,
+            "workflow_status": "queued",
+            "routing": routing,
+            "ai_response": None,
+            "trace_metadata": {
+                "orchestration_engine": "LangGraph StateGraph",
+                "dag_topology": "Dynamic Fan-Out / Fan-In",
+                "version": "3.0.0"
+            },
+            "started_at": start_time,
+            "completed_at": None
+        }
 
-        # Save investigation record
+        # Step 6: Invoke Compiled LangGraph DAG
+        logger.info(f"Executing LangGraph multi-agent investigation for ticket {ticket_id} (run_id: {inv_id})...")
+        final_state = await investigation_graph.ainvoke(initial_state)
+
+        overall_confidence = final_state.get("confidence", 0.90)
+        supervisor_summary = final_state.get("supervisor_summary", "Investigation completed.")
+        recommended_next_step = final_state.get("recommended_next_step", "Operator manual review required.")
+        ai_resp = final_state.get("ai_response")
+        findings = final_state.get("agent_findings", [])
+        evidence_list = final_state.get("evidence", [])
+        steps = final_state.get("investigation_steps", [])
+        runs = final_state.get("agent_runs", [])
+        decision = final_state.get("supervisor_decision")
+        completed_at = final_state.get("completed_at") or datetime.now(timezone.utc).isoformat()
+        status = "partial" if final_state.get("agent_errors") else "completed"
+
+        # Step 7: Persist Investigation Record
         inv_record = {
             "id": inv_id,
             "org_id": context.ticket.org_id,
             "ticket_id": ticket_id,
             "incident_id": None,
-            "status": "completed",
-            "summary": ai_resp.reasoning_summary,
+            "status": status,
+            "summary": supervisor_summary,
             "overall_confidence": overall_confidence,
             "started_at": start_time,
-            "completed_at": datetime.now(timezone.utc).isoformat()
+            "completed_at": completed_at
         }
         await repo.insert_record("investigations", inv_record)
 
-        # Save evidence records
+        # Step 8: Persist Evidence Items
         for ev in evidence_list:
             ev_record = {
                 "id": ev.id,
@@ -149,11 +161,77 @@ class InvestigationService:
                 "summary": ev.description,
                 "raw_data": ev.raw_data,
                 "relevance_score": ev.relevance_score,
-                "sha256_hash": ev.sha256_hash
+                "sha256_hash": ev.sha256_hash,
+                "created_at": start_time
             }
             await repo.insert_record("evidence", ev_record)
 
-        # Update ticket attributes with AI results
+        # Step 9: Persist Investigation Steps (Trace)
+        for st in steps:
+            step_record = {
+                "id": st.id,
+                "org_id": context.ticket.org_id,
+                "investigation_id": inv_id,
+                "step_number": st.step_number,
+                "agent_name": st.agent_name,
+                "action_type": st.action_type,
+                "status": st.status,
+                "finding_summary": st.finding_summary,
+                "thought_process": st.thought_process,
+                "tool_name": st.tool_name,
+                "tool_input": st.tool_input,
+                "tool_output": st.tool_output,
+                "confidence": st.confidence,
+                "evidence_refs": st.evidence_refs,
+                "duration_ms": st.duration_ms,
+                "started_at": st.started_at,
+                "completed_at": st.completed_at,
+                "error": st.error,
+                "created_at": st.started_at or start_time
+            }
+            await repo.insert_record("investigation_steps", step_record)
+
+        # Step 10: Persist Agent Runs & Update Registry Stats
+        for rn in runs:
+            run_record = {
+                "id": rn.id,
+                "org_id": context.ticket.org_id,
+                "investigation_id": inv_id,
+                "agent_id": rn.agent_id,
+                "input_state_hash": rn.input_state_hash,
+                "tokens_used": rn.tokens_used,
+                "duration_ms": rn.duration_ms,
+                "status": rn.status,
+                "confidence": rn.confidence,
+                "finding_summary": rn.finding_summary,
+                "evidence_ids": rn.evidence_ids,
+                "error": rn.error,
+                "started_at": rn.started_at,
+                "completed_at": rn.completed_at,
+                "created_at": rn.started_at or start_time
+            }
+            await repo.insert_record("agent_runs", run_record)
+            # Update live agent counters
+            await agent_service.update_agent_execution_stats(rn.agent_id, success=(rn.status == "completed"))
+
+        # Step 11: Persist Agent Findings
+        for fn in findings:
+            finding_record = {
+                "id": str(uuid.uuid4()),
+                "org_id": context.ticket.org_id,
+                "investigation_id": inv_id,
+                "agent_run_id": None,
+                "finding_type": fn.finding_type,
+                "conclusion": fn.conclusion,
+                "confidence": fn.confidence,
+                "evidence_refs": fn.evidence_refs,
+                "specialist_name": fn.specialist_name,
+                "status": fn.status,
+                "created_at": start_time
+            }
+            await repo.insert_record("agent_findings", finding_record)
+
+        # Step 12: Update Ticket Attributes with Multi-Agent Findings
         await repo.update_record("tickets", ticket_id, {
             "ai_confidence": overall_confidence,
             "recommended_team": routing.recommended_team,
@@ -162,44 +240,204 @@ class InvestigationService:
             "priority": routing.priority
         })
 
-        return InvestigationResult(
+        result = InvestigationResult(
             investigation_id=inv_id,
             ticket_id=ticket_id,
-            status="completed",
-            summary=ai_resp.reasoning_summary,
+            status=status,
+            summary=supervisor_summary,
             overall_confidence=overall_confidence,
             intent=intent,
             routing=routing,
+            supervisor_decision=decision,
             findings=findings,
             evidence=evidence_list,
             relevant_policies=policies,
+            investigation_steps=steps,
+            agent_runs=runs,
             ai_response=ai_resp,
-            recommended_next_step=ai_resp.recommended_next_step,
+            recommended_next_step=recommended_next_step,
             started_at=start_time,
-            completed_at=datetime.now(timezone.utc).isoformat()
+            completed_at=completed_at,
+            trace_metadata=final_state.get("trace_metadata", {})
         )
 
+        # Cache in-memory for instant idempotent retrieval
+        self._cached_results[ticket_id] = result
+        return result
+
+    async def get_investigation_for_ticket(self, ticket_id: str) -> Optional[InvestigationResult]:
+        """Fetches the latest investigation for a ticket including steps and runs"""
+        invs, _ = await repo.list_records("investigations", filters={"ticket_id": ticket_id}, limit=5)
+        if not invs:
+            return None
+
+        # Sort by completed_at or started_at desc
+        sorted_invs = sorted(invs, key=lambda x: x.get("completed_at") or x.get("started_at") or "", reverse=True)
+        latest_inv = sorted_invs[0]
+        inv_id = latest_inv["id"]
+
+        return await self.get_investigation_by_id(inv_id)
+
+    async def get_investigation_by_id(self, inv_id: str) -> Optional[InvestigationResult]:
+        """Fetches complete investigation details by investigation UUID"""
+        inv = await repo.get_record_by_id("investigations", inv_id)
+        if not inv:
+            return None
+
+        ticket_id = inv["ticket_id"]
+        if ticket_id in self._cached_results and self._cached_results[ticket_id].investigation_id == inv_id:
+            return self._cached_results[ticket_id]
+
+        ticket = await repo.get_record_by_id("tickets", ticket_id)
+
+        # Retrieve steps
+        steps = await self.get_investigation_steps(inv_id)
+        # Retrieve agent runs
+        runs = await self.get_investigation_agents(inv_id)
+        # Retrieve evidence
+        evidence = await self.get_investigation_evidence(inv_id)
+        # Retrieve findings
+        raw_findings, _ = await repo.list_records("agent_findings", filters={"investigation_id": inv_id}, limit=50)
+        findings = [
+            SpecialistFinding(
+                specialist_name=rf.get("specialist_name", rf.get("finding_type", "Specialist")),
+                finding_type=rf.get("finding_type", "audit"),
+                status=rf.get("status", "VERIFIED"),
+                conclusion=rf.get("conclusion", ""),
+                confidence=rf.get("confidence", 0.90),
+                evidence_refs=rf.get("evidence_refs", [])
+            )
+            for rf in raw_findings
+        ]
+
+        # Reconstruct intent & routing from ticket attributes
+        intent_cat = ticket.get("intent_category", "general_inquiry") if ticket else "general_inquiry"
+        priority = ticket.get("priority", "medium") if ticket else "medium"
+        team = ticket.get("recommended_team", "Support Operations") if ticket else "Support Operations"
+        resolvable = ticket.get("ai_resolvable", True) if ticket else True
+
+        intent = IntentClassification(
+            intent=intent_cat,
+            confidence=inv.get("overall_confidence", 0.90),
+            urgency=priority,
+            sentiment="neutral",
+            complexity="medium",
+            provider="hybrid"
+        )
+        routing = RoutingDecision(
+            recommended_team=team,
+            priority=priority,
+            ai_resolvable=resolvable,
+            reason="Synthesized from multi-agent investigation evidence.",
+            confidence=inv.get("overall_confidence", 0.90),
+            provider="hybrid"
+        )
+
+        return InvestigationResult(
+            investigation_id=inv_id,
+            ticket_id=ticket_id,
+            status=inv.get("status", "completed"),
+            summary=inv.get("summary", ""),
+            overall_confidence=inv.get("overall_confidence", 0.90),
+            intent=intent,
+            routing=routing,
+            supervisor_decision=None,
+            findings=findings,
+            evidence=evidence,
+            relevant_policies=[],
+            investigation_steps=steps,
+            agent_runs=runs,
+            ai_response=AIResponse(
+                suggested_response=inv.get("summary", ""),
+                reasoning_summary=inv.get("summary", ""),
+                confidence=inv.get("overall_confidence", 0.90),
+                evidence_ids=[e.id for e in evidence],
+                policy_sources=[],
+                recommended_next_step="Operator review advised.",
+                provider="supervisor_synthesis"
+            ),
+            recommended_next_step="Operator review advised.",
+            started_at=inv.get("started_at", ""),
+            completed_at=inv.get("completed_at")
+        )
+
+    async def get_investigation_steps(self, inv_id: str) -> List[InvestigationStepSchema]:
+        """Retrieves chronological investigation trace steps"""
+        raw_steps, _ = await repo.list_records("investigation_steps", filters={"investigation_id": inv_id}, limit=50)
+        sorted_steps = sorted(raw_steps, key=lambda x: x.get("step_number", 0))
+        return [
+            InvestigationStepSchema(
+                id=str(s.get("id")),
+                investigation_id=str(s.get("investigation_id")),
+                step_number=s.get("step_number", 1),
+                agent_name=s.get("agent_name", "Specialist"),
+                action_type=s.get("action_type", "investigate"),
+                status=s.get("status", "completed"),
+                finding_summary=s.get("finding_summary") or s.get("thought_process"),
+                thought_process=s.get("thought_process"),
+                tool_name=s.get("tool_name"),
+                tool_input=s.get("tool_input", {}),
+                tool_output=s.get("tool_output", {}),
+                confidence=s.get("confidence"),
+                evidence_refs=s.get("evidence_refs", []),
+                duration_ms=s.get("duration_ms"),
+                started_at=s.get("started_at"),
+                completed_at=s.get("completed_at"),
+                error=s.get("error"),
+                created_at=s.get("created_at")
+            )
+            for s in sorted_steps
+        ]
+
+    async def get_investigation_agents(self, inv_id: str) -> List[AgentRunSchema]:
+        """Retrieves all agent runs associated with an investigation"""
+        raw_runs, _ = await repo.list_records("agent_runs", filters={"investigation_id": inv_id}, limit=50)
+        return [
+            AgentRunSchema(
+                id=str(r.get("id")),
+                investigation_id=str(r.get("investigation_id")),
+                agent_id=str(r.get("agent_id")),
+                agent_name=r.get("agent_name"),
+                input_state_hash=r.get("input_state_hash", ""),
+                tokens_used=r.get("tokens_used", 0),
+                duration_ms=r.get("duration_ms"),
+                status=r.get("status", "completed"),
+                confidence=r.get("confidence"),
+                finding_summary=r.get("finding_summary"),
+                evidence_ids=r.get("evidence_ids", []),
+                error=r.get("error"),
+                started_at=r.get("started_at"),
+                completed_at=r.get("completed_at"),
+                created_at=r.get("created_at")
+            )
+            for r in raw_runs
+        ]
+
+    async def get_investigation_evidence(self, inv_id: str) -> List[EvidenceItem]:
+        """Retrieves all evidence items attached to an investigation"""
+        raw_ev, _ = await repo.list_records("evidence", filters={"investigation_id": inv_id}, limit=50)
+        return [
+            EvidenceItem(
+                id=str(r.get("id")),
+                type=r.get("evidence_type", "order_log"),
+                source_entity_id=r.get("source_entity_id", ""),
+                description=r.get("summary", ""),
+                timestamp=r.get("created_at"),
+                relevance_score=r.get("relevance_score", 0.95),
+                raw_data=r.get("raw_data", {}),
+                sha256_hash=r.get("sha256_hash")
+            )
+            for r in raw_ev
+        ]
+
     async def get_case_evidence(self, ticket_id: str) -> List[EvidenceItem]:
-        """Retrieves verified evidence stored for a ticket's investigations"""
+        """Retrieves verified evidence stored for a ticket (backward-compatible)"""
         invs, _ = await repo.list_records("investigations", filters={"ticket_id": ticket_id}, limit=1)
         if not invs:
-            # If no stored investigation yet, run analysis on the fly
             res = await self.run_investigation(ticket_id)
             return res.evidence if res else []
 
         inv_id = invs[0]["id"]
-        evidence_records, _ = await repo.list_records("evidence", filters={"investigation_id": inv_id}, limit=20)
-        return [
-            EvidenceItem(
-                id=r["id"],
-                type=r["evidence_type"],
-                source_entity_id=r["source_entity_id"],
-                description=r["summary"],
-                relevance_score=r["relevance_score"],
-                raw_data=r.get("raw_data", {}),
-                sha256_hash=r.get("sha256_hash")
-            )
-            for r in evidence_records
-        ]
+        return await self.get_investigation_evidence(inv_id)
 
 investigation_service = InvestigationService()

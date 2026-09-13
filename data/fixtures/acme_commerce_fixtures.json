@@ -44,6 +44,14 @@
       "full_name": "Maya Patel",
       "role": "lead_investigator",
       "is_active": true
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000014",
+      "org_id": "00000000-0000-0000-0000-000000000001",
+      "email": "sarah.jenkins@acmecommerce.com",
+      "full_name": "Sarah Jenkins",
+      "role": "support_manager",
+      "is_active": true
     }
   ],
   "products": [
@@ -5277,6 +5285,15 @@
       "email": "noah.kim519@example.com",
       "phone": "+1-555-0119-1519",
       "full_name": "Noah Kim",
+      "status": "active"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000050",
+      "org_id": "00000000-0000-0000-0000-000000000001",
+      "external_customer_id": "CUST-EXT-0050",
+      "email": "rahul@example.com",
+      "phone": "+1-555-019-9944",
+      "full_name": "Rahul Sharma",
       "status": "active"
     }
   ],
@@ -11520,6 +11537,18 @@
       "total_tickets_count": 1,
       "churn_risk_score": 0.05,
       "sentiment_trend": "positive"
+    },
+    {
+      "id": "00000000-0000-0000-0000-000000000150",
+      "org_id": "00000000-0000-0000-0000-000000000001",
+      "customer_id": "00000000-0000-0000-0000-000000000050",
+      "lifetime_value_cents": 14999,
+      "currency": "USD",
+      "loyalty_tier": "silver",
+      "total_orders_count": 3,
+      "total_tickets_count": 1,
+      "churn_risk_score": 0.15,
+      "sentiment_trend": "neutral"
     }
   ],
   "orders": [
@@ -36306,6 +36335,26 @@
       },
       "created_at": "2026-09-13T13:46:00+00:00",
       "updated_at": "2026-09-13T13:46:00+00:00"
+    },
+    {
+      "id": "ba068e85-abf2-5dbb-9b39-c60e4d997250",
+      "org_id": "00000000-0000-0000-0000-000000000001",
+      "customer_id": "00000000-0000-0000-0000-000000000050",
+      "order_id": null,
+      "gateway_transaction_id": "ch_stripe_orphaned_9050",
+      "gateway_name": "stripe",
+      "amount_cents": 4999,
+      "currency": "USD",
+      "status": "captured",
+      "failure_code": null,
+      "failure_message": null,
+      "raw_gateway_response": {
+        "paid": true,
+        "captured": true,
+        "charge_id": "ch_stripe_orphaned_9050"
+      },
+      "created_at": "2026-09-13T13:31:00+00:00",
+      "updated_at": "2026-09-13T13:31:00+00:00"
     }
   ],
   "service_events": [

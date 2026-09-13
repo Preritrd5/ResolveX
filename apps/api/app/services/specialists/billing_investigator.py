@@ -20,10 +20,11 @@ class BillingInvestigator:
         payments = context.payments
 
         # Check for orphan or recent captured payment
+        orphans = [p for p in payments if p.status == "captured" and p.order_id is None]
         captured_payments = [p for p in payments if p.status == "captured"]
+        latest = orphans[0] if orphans else (captured_payments[0] if captured_payments else None)
         
-        if captured_payments:
-            latest = captured_payments[0]
+        if latest:
             desc = f"Payment of ${latest.amount_cents / 100:.2f} captured on {latest.gateway_name.upper()} (Transaction ID: {latest.gateway_transaction_id})."
             raw_hash = hashlib.sha256(f"{latest.id}:{latest.gateway_transaction_id}:{latest.amount_cents}".encode()).hexdigest()
             

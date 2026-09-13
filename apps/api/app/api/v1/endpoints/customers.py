@@ -5,7 +5,14 @@ ResolveX Customer Endpoints
 from typing import Optional, List
 from fastapi import APIRouter, Query, HTTPException, status
 from apps.api.app.services.customer_service import customer_service
-from apps.api.app.domain.schemas import ApiResponse, CustomerSchema, CustomerDetailSchema, ApiErrorResponse
+from apps.api.app.services.prediction_engine import prediction_engine
+from apps.api.app.domain.schemas import (
+    ApiResponse,
+    CustomerSchema,
+    CustomerDetailSchema,
+    ApiErrorResponse,
+    CustomerRiskResponseSchema
+)
 
 router = APIRouter(prefix="/customers", tags=["Customers"])
 
@@ -37,3 +44,10 @@ async def get_customer(customer_id: str):
             detail={"code": "CUSTOMER_NOT_FOUND", "message": f"Customer '{customer_id}' does not exist in organization."}
         )
     return ApiResponse(data=detail)
+
+@router.get("/{customer_id}/risk", response_model=ApiResponse[CustomerRiskResponseSchema])
+async def get_customer_risk_endpoint(customer_id: str):
+    """Retrieves predicted operational risk and incident impact for a specific customer"""
+    risk_profile = await prediction_engine.get_customer_risk(customer_id)
+    return ApiResponse(data=risk_profile)
+

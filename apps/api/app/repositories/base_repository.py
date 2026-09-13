@@ -57,6 +57,10 @@ class BaseRepository:
                 if any(sq in str(r.get(f, "")).lower() for f in search_fields)
             ]
 
+        # For tickets, sort newest first (by created_at descending)
+        if table_name == "tickets":
+            records.sort(key=lambda r: str(r.get("created_at", "")), reverse=True)
+
         total = len(records)
         start_idx = (page - 1) * limit
         end_idx = start_idx + limit
@@ -116,7 +120,16 @@ class BaseRepository:
         for r in records:
             if str(r.get("id")) == str(record_id):
                 return dict(r)
+            if table_name == "tickets" and str(r.get("ticket_number")) == str(record_id):
+                return dict(r)
+            if table_name == "customers" and str(r.get("external_customer_id")) == str(record_id):
+                return dict(r)
+            if table_name == "orders" and str(r.get("order_number")) == str(record_id):
+                return dict(r)
+            if table_name == "incidents" and str(r.get("incident_number")) == str(record_id):
+                return dict(r)
         return None
+
 
     async def insert_record(self, table_name: str, record: Dict[str, Any]) -> Dict[str, Any]:
         """Inserts a new record into Supabase and updates in-memory cache"""
@@ -124,7 +137,10 @@ class BaseRepository:
         # 1. Update in-memory fixture cache
         if table_name not in self._fixtures:
             self._fixtures[table_name] = []
-        self._fixtures[table_name].append(saved)
+        if table_name == "tickets":
+            self._fixtures[table_name].insert(0, saved)
+        else:
+            self._fixtures[table_name].append(saved)
 
         # 2. Persist to Supabase if not pure mock
         if not settings.DEMO_MODE:
@@ -137,6 +153,9 @@ class BaseRepository:
                 logger.warning(f"Supabase remote insert into '{table_name}' failed ({str(e)}). Stored in cache.")
 
         return saved
+
+    async def create_record(self, table_name: str, record: Dict[str, Any]) -> Dict[str, Any]:
+        return await self.insert_record(table_name, record)
 
     async def update_record(self, table_name: str, record_id: str, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Updates an existing record by ID in Supabase and in-memory cache"""
