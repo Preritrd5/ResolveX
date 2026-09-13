@@ -12,7 +12,6 @@ COPY apps/api/requirements.txt /workspace/apps/api/requirements.txt
 RUN pip install --no-cache-dir -r /workspace/apps/api/requirements.txt
 
 COPY apps/ /workspace/apps/
-COPY data/ /workspace/data/
 
 ENV PYTHONPATH=/workspace
 ENV API_PORT=8000
