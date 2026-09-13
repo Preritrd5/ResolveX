@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+  # ResolveX FastAPI Backend Service
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: resolvex-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+      - SUPABASE_URL=${SUPABASE_URL:-https://tqulsfsirkugmxscukyt.supabase.co}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+      - DEMO_MODE=true
+    restart: unless-stopped
+
+  # Future ChromaDB Vector Store (Prepared for Phase 2 Knowledge RAG)
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: resolvex-chromadb
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma-data:/chroma/chroma
+    restart: unless-stopped
+
+volumes:
+  chroma-data:
