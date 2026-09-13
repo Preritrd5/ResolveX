@@ -2,22 +2,17 @@ FROM python:3.13-slim
 
 WORKDIR /workspace
 
-# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy backend requirements
 COPY apps/api/requirements.txt /workspace/apps/api/requirements.txt
 
-# Install Python dependencies
 RUN pip install --no-cache-dir -r /workspace/apps/api/requirements.txt
 
-# Copy backend source and required project data
 COPY apps/ /workspace/apps/
 COPY data/ /workspace/data/
-COPY docs/ /workspace/docs/
 
 ENV PYTHONPATH=/workspace
 ENV API_PORT=8000
