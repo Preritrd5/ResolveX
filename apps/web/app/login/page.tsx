@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -20,9 +20,14 @@ import { useAuth, RoleType, PRESET_PERSONAS } from "@/lib/auth-context";
 export default function LoginPage() {
   const router = useRouter();
   const { loginAsPersona } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [email, setEmail] = useState("admin@acmecommerce.com");
   const [password, setPassword] = useState("••••••••••••");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handlePersonaSelect = (role: RoleType, targetPath: string = "/overview") => {
     loginAsPersona(role);
@@ -43,8 +48,39 @@ export default function LoginPage() {
     }, 400);
   };
 
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+          <div className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[11px] bg-gradient-to-r from-[#7779D8] to-[#5052C9] flex items-center justify-center text-white font-bold text-lg shadow-[0_2px_8px_rgba(80,82,201,0.25)]">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-heading font-extrabold tracking-[-0.02em] text-[#24283A]">
+              Resolve<span className="text-[#5052C9]">X</span>
+            </span>
+          </div>
+          <h2 className="mt-3 text-xl font-heading font-bold text-[#24283A]">
+            Employee Mission Control Login
+          </h2>
+          <p className="mt-1 text-xs text-[#464B5E]">
+            Autonomous Customer Incident Intelligence Platform
+          </p>
+        </div>
+        <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-xl px-4">
+          <div className="unify-card p-6 sm:p-8 flex items-center justify-center min-h-[380px]">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-7 h-7 border-2 border-[#5052C9] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-[#464B5E] font-medium font-mono">Loading Mission Control...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div suppressHydrationWarning className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+    <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-10 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
           <div className="w-10 h-10 rounded-[11px] bg-gradient-to-r from-[#7779D8] to-[#5052C9] flex items-center justify-center text-white font-bold text-lg shadow-[0_2px_8px_rgba(80,82,201,0.25)] group-hover:scale-105 transition-transform">

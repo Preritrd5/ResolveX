@@ -1,17 +1,22 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, ArrowRight, Sparkles, Lock, Mail, Building, User } from "lucide-react";
 
 export default function SignUpPage() {
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
   const [name, setName] = useState("Operations Director");
   const [org, setOrg] = useState("Acme Global Commerce");
   const [email, setEmail] = useState("director@acmecommerce.com");
   const [password, setPassword] = useState("••••••••••••");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,6 +32,37 @@ export default function SignUpPage() {
       router.push("/overview");
     }, 400);
   };
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
+          <div className="inline-flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-[11px] bg-gradient-to-r from-[#7779D8] to-[#5052C9] flex items-center justify-center text-white font-bold text-lg shadow-[0_2px_8px_rgba(80,82,201,0.25)]">
+              <ShieldCheck className="w-6 h-6 text-white" />
+            </div>
+            <span className="text-2xl font-heading font-extrabold tracking-[-0.02em] text-[#24283A]">
+              Resolve<span className="text-[#5052C9]">X</span>
+            </span>
+          </div>
+          <h2 className="mt-4 text-xl font-heading font-bold text-[#24283A]">
+            Create an Incident Intelligence Workspace
+          </h2>
+          <p className="mt-1 text-xs text-[#464B5E]">
+            Deploy multi-agent customer support operations in seconds
+          </p>
+        </div>
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md px-4">
+          <div className="unify-card p-6 sm:p-9 flex items-center justify-center min-h-[380px]">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-7 h-7 border-2 border-[#5052C9] border-t-transparent rounded-full animate-spin"></div>
+              <span className="text-xs text-[#464B5E] font-medium font-mono">Loading Workspace...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
