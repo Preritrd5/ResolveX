@@ -18,10 +18,16 @@
     --accent-foreground: 239 52% 55%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 215 20% 86%;          /* #D2D9E4 Cool Slate Rim */
-    --input: 215 18% 82%;
+    --border: 215 18% 74%;          /* Darkened from 215 20% 86% (#D2D9E4) for defined outlines */
+    --input: 215 16% 70%;           /* Darkened from 215 18% 82% */
     --ring: 239 52% 55%;            /* #5052C9 */
     --radius: 1.25rem;              /* 20px */
+  }
+
+  *,
+  ::before,
+  ::after {
+    border-color: #cbd5e1;
   }
 
   body {
@@ -49,7 +55,7 @@
     background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1.5px solid rgba(255, 255, 255, 0.85);
+    border: 1.5px solid rgba(168, 166, 158, 0.65);
     border-radius: 20px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06), 0 1px 4px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
@@ -59,7 +65,7 @@
     background: rgba(255, 255, 255, 0.58);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    border: 1.5px solid rgba(168, 166, 158, 0.5);
     border-radius: 16px;
     box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.03);
   }
@@ -69,7 +75,7 @@
     background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1.5px solid rgba(255, 255, 255, 0.92);
+    border: 1.5px solid rgba(168, 166, 158, 0.75);
     border-radius: 16px;
     box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.08), 0 2px 8px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
@@ -104,7 +110,7 @@
     background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    border: 1.5px solid rgba(173, 183, 201, 0.6);
     color: #24283A;
     font-weight: 600;
     display: inline-flex;
@@ -127,7 +133,7 @@
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1.5px solid rgba(208, 217, 230, 0.8);
+    border: 1.5px solid rgba(158, 156, 147, 0.85);
     border-radius: 11px;
     color: #24283A;
     padding-left: 14px;
@@ -151,7 +157,7 @@
     background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
+    border-bottom: 1.5px solid rgba(173, 183, 201, 0.75);
   }
 
   /* Unify AI Insights Container (Frosted Tint Glass) */
@@ -159,7 +165,7 @@
     background: linear-gradient(135deg, rgba(238, 240, 250, 0.85) 0%, rgba(229, 228, 238, 0.75) 100%);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 2px solid rgba(191, 193, 228, 0.85);
+    border: 2px solid rgba(158, 161, 210, 0.9);
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(80, 82, 201, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9);
     color: #24283A;
@@ -193,5 +199,154 @@
     border-radius: 12px !important;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
   }
+}
+
+/* =========================================================================
+   Container & Box Outline Contrast Enhancements
+   Slightly darkens visible borders across cards, containers, panels,
+   input fields, tables, modals, and dividers for crisp visual definition.
+   ========================================================================= */
+.border-\[\#C6C5BE\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(168 166 158 / var(--tw-border-opacity, 1));
+}
+.border-b-\[\#C6C5BE\] {
+  --tw-border-opacity: 1;
+  border-bottom-color: rgb(168 166 158 / var(--tw-border-opacity, 1));
+}
+.border-t-\[\#C6C5BE\] {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(168 166 158 / var(--tw-border-opacity, 1));
+}
+.border-r-\[\#C6C5BE\] {
+  --tw-border-opacity: 1;
+  border-right-color: rgb(168 166 158 / var(--tw-border-opacity, 1));
+}
+.border-l-\[\#C6C5BE\] {
+  --tw-border-opacity: 1;
+  border-left-color: rgb(168 166 158 / var(--tw-border-opacity, 1));
+}
+
+.border-\[\#BDBCB5\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(158 156 147 / var(--tw-border-opacity, 1));
+}
+.hover\:border-\[\#BDBCB5\]:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(142 140 131 / var(--tw-border-opacity, 1));
+}
+
+.border-\[\#D8D6CE\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(189 186 176 / var(--tw-border-opacity, 1));
+}
+.border-b-\[\#D8D6CE\] {
+  --tw-border-opacity: 1;
+  border-bottom-color: rgb(189 186 176 / var(--tw-border-opacity, 1));
+}
+.border-t-\[\#D8D6CE\] {
+  --tw-border-opacity: 1;
+  border-top-color: rgb(189 186 176 / var(--tw-border-opacity, 1));
+}
+.border-\[\#D8D6CE\]\/60 {
+  border-color: rgb(189 186 176 / 0.75);
+}
+.divide-\[\#D8D6CE\] > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(189 186 176 / var(--tw-divide-opacity, 1));
+}
+.divide-\[\#D8D6CE\]\/60 > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(189 186 176 / 0.75);
+}
+.hover\:border-\[\#D8D6CE\]:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(173 169 159 / var(--tw-border-opacity, 1));
+}
+
+.border-\[\#BFC1E4\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(158 161 210 / var(--tw-border-opacity, 1));
+}
+.border-\[\#BFC1E4\]\/50 {
+  border-color: rgb(158 161 210 / 0.65);
+}
+.border-\[\#BFC1E4\]\/70 {
+  border-color: rgb(158 161 210 / 0.8);
+}
+.border-\[\#BFC1E4\]\/80 {
+  border-color: rgb(158 161 210 / 0.9);
+}
+.hover\:border-\[\#BFC1E4\]:hover {
+  --tw-border-opacity: 1;
+  border-color: rgb(143 146 200 / var(--tw-border-opacity, 1));
+}
+
+.border-\[\#D0D7E3\]\/60 {
+  border-color: rgb(173 183 201 / 0.8);
+}
+.border-\[\#D0D7E3\]\/70 {
+  border-color: rgb(173 183 201 / 0.9);
+}
+.border-\[\#D0D7E3\]\/80 {
+  border-color: rgb(173 183 201 / 0.95);
+}
+
+.border-\[\#E2E8F0\] {
+  --tw-border-opacity: 1;
+  border-color: rgb(203 213 225 / var(--tw-border-opacity, 1));
+}
+
+.border-slate-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(203 213 225 / var(--tw-border-opacity, 1));
+}
+.border-slate-200\/50 {
+  border-color: rgb(203 213 225 / 0.65);
+}
+.border-slate-200\/60 {
+  border-color: rgb(203 213 225 / 0.75);
+}
+.border-slate-200\/70 {
+  border-color: rgb(203 213 225 / 0.85);
+}
+.border-slate-200\/80 {
+  border-color: rgb(203 213 225 / 0.9);
+}
+.border-slate-200\/90 {
+  border-color: rgb(203 213 225 / 0.95);
+}
+
+.border-slate-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-border-opacity, 1));
+}
+.divide-slate-100 > :not([hidden]) ~ :not([hidden]) {
+  --tw-divide-opacity: 1;
+  border-color: rgb(226 232 240 / var(--tw-divide-opacity, 1));
+}
+
+.border-emerald-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(134 239 172 / var(--tw-border-opacity, 1));
+}
+.border-amber-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(252 211 77 / var(--tw-border-opacity, 1));
+}
+.border-rose-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(253 164 175 / var(--tw-border-opacity, 1));
+}
+.border-indigo-100 {
+  --tw-border-opacity: 1;
+  border-color: rgb(199 210 254 / var(--tw-border-opacity, 1));
+}
+.border-indigo-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(165 180 252 / var(--tw-border-opacity, 1));
+}
+.border-blue-200 {
+  --tw-border-opacity: 1;
+  border-color: rgb(147 197 253 / var(--tw-border-opacity, 1));
 }
 
