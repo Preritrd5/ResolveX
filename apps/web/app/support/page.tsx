@@ -21,6 +21,7 @@ import {
   ChevronRight,
   Lock
 } from "lucide-react";
+import { AtmosphericBackground } from "@/components/ui/atmospheric-background";
 import { fetchApi } from "@/lib/api-client";
 
 interface SupportResponseData {
@@ -109,12 +110,12 @@ export default function PublicSupportPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#EDEBE5] text-[#24283A] selection:bg-[#5052C9] selection:text-white font-sans flex flex-col justify-between relative overflow-x-hidden">
-      {/* Background ambient warmth */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[48rem] h-[24rem] bg-[#E5E4EE]/50 rounded-full blur-3xl pointer-events-none -z-10" />
+    <div className="min-h-screen text-[#24283A] selection:bg-[#5052C9] selection:text-white font-sans flex flex-col justify-between relative overflow-x-hidden">
+      {/* Global Atmospheric Visual System — Portal Variant */}
+      <AtmosphericBackground variant="portal" />
 
       {/* Public Header (72px Unify Baseline) */}
-      <header className="sticky top-0 z-40 bg-[#F8F7F3]/95 backdrop-blur-[16px] border-b-[1.5px] border-[#C6C5BE] px-6 sm:px-10 h-[72px] flex items-center transition-all">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-[20px] border-b border-[#D0D7E3]/70 px-6 sm:px-10 h-[72px] flex items-center transition-all shadow-[0_1px_3px_rgba(31,38,135,0.03)]">
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-2.5 group">
@@ -137,15 +138,7 @@ export default function PublicSupportPage() {
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Operations Active · Avg response 15m</span>
             </div>
-
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#464B5E] hover:text-[#5052C9] px-3 py-1.5 rounded-[9px] hover:bg-[#EDEBE5] transition-colors border border-transparent hover:border-[#C6C5BE]"
-              title="Employee Operations Login"
-            >
-              <Lock className="w-3.5 h-3.5" />
-              <span>Staff Login</span>
-            </Link>
+            
           </div>
         </div>
       </header>
@@ -171,9 +164,9 @@ export default function PublicSupportPage() {
                   <Sparkles className="w-4 h-4" />
                 </div>
                 <div>
-                  <div className="text-xs font-bold text-[#24283A] flex items-center gap-1.5">
+                  <div className="text-xs font-bold text-[#24283A] flex flex-wrap items-center gap-1.5">
                     <span>Demo Flagship Scenario: Missing Order after Payment</span>
-                    <span className="text-[10px] bg-[#5052C9] text-white font-mono px-1.5 py-0.2 rounded font-semibold">
+                    <span className="text-[10px] bg-[#5052C9] text-white font-mono px-1.5 py-0.5 rounded font-semibold">
                       Rahul Sharma
                     </span>
                   </div>
@@ -185,14 +178,14 @@ export default function PublicSupportPage() {
               <button
                 type="button"
                 onClick={handlePreFillFlagshipScenario}
-                className="shrink-0 unify-btn-secondary h-8 px-3 text-xs bg-white text-[#5052C9] border-[#BFC1E4] hover:bg-[#dedde8]"
+                className="w-full sm:w-auto justify-center shrink-0 unify-btn-secondary h-8 px-3 text-xs bg-white text-[#5052C9] border-[#BFC1E4] hover:bg-[#dedde8]"
               >
                 <span>⚡ Fill Demo Case</span>
               </button>
             </div>
 
             {/* Intake Form Card */}
-            <div className="unify-card p-6 sm:p-8 space-y-5 bg-[#F8F7F3]">
+            <div className="unify-card p-6 sm:p-8 space-y-5">
               {errorMessage && (
                 <div className="p-3.5 rounded-[11px] bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0 text-rose-600" />
@@ -338,7 +331,7 @@ export default function PublicSupportPage() {
           </div>
         ) : (
           /* Confirmation State View */
-          <div className="unify-card p-8 sm:p-10 text-center space-y-6 bg-[#F8F7F3] border-[1.5px] border-[#C6C5BE] shadow-[0_4px_20px_rgba(35,39,55,0.06)] animate-in fade-in duration-300">
+          <div className="unify-card p-8 sm:p-10 text-center space-y-6 shadow-[0_4px_20px_rgba(35,39,55,0.06)] animate-in fade-in duration-300">
             {/* Animated Success Badge */}
             <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 border-2 border-emerald-300 flex items-center justify-center mx-auto shadow-sm">
               <CheckCircle2 className="w-9 h-9" />
@@ -378,18 +371,18 @@ export default function PublicSupportPage() {
             </div>
 
             {/* Case Snapshot Grid */}
-            <div className="p-4 rounded-[11px] bg-[#EDEBE5] border border-[#C6C5BE] text-left max-w-md mx-auto space-y-2 text-xs">
-              <div className="flex justify-between py-1 border-b border-[#D8D6CE]">
+            <div className="p-4 rounded-[11px] bg-white/70 backdrop-blur-xs border border-white/90 text-left max-w-md mx-auto space-y-2 text-xs shadow-2xs">
+              <div className="flex justify-between py-1 border-b border-[#D0D7E3]/60">
                 <span className="text-[#464B5E]">Customer</span>
                 <span className="font-semibold text-[#24283A]">{submittedData.customer_name}</span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#D8D6CE]">
+              <div className="flex justify-between py-1 border-b border-[#D0D7E3]/60">
                 <span className="text-[#464B5E]">Subject</span>
                 <span className="font-semibold text-[#24283A] truncate max-w-[240px]" title={submittedData.subject}>
                   {submittedData.subject}
                 </span>
               </div>
-              <div className="flex justify-between py-1 border-b border-[#D8D6CE]">
+              <div className="flex justify-between py-1 border-b border-[#D0D7E3]/60">
                 <span className="text-[#464B5E]">Status</span>
                 <span className="inline-flex items-center gap-1 font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded text-[10px]">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />
@@ -429,18 +422,23 @@ export default function PublicSupportPage() {
       </main>
 
       {/* Public Footer */}
-      <footer className="border-t-[1.5px] border-[#C6C5BE] bg-[#F8F7F3] py-6 px-6 sm:px-10 text-xs text-[#464B5E]">
+      <footer className="border-t border-[#23283E] bg-[#151827] py-6 px-6 sm:px-10 text-xs text-[#8E95B8]">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-5 h-5 rounded bg-[#5052C9] text-white flex items-center justify-center font-bold text-[10px]">
               RX
             </div>
-            <span>Powered by <strong>ResolveX</strong> Autonomous Incident Intelligence</span>
+            <span className="text-[#A5ADC8]">Powered by <strong className="text-white">ResolveX</strong> Autonomous Incident Intelligence</span>
           </div>
 
           <div className="flex items-center gap-6 text-[11px]">
+            <span className="flex items-center gap-1.5 text-emerald-400 font-mono">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Systems Operational
+            </span>
+            <span className="text-[#6B7294]">•</span>
             <span>Acme Commerce Inc.</span>
-            <Link href="/login" className="hover:text-[#5052C9] font-medium flex items-center gap-1">
+            <Link href="/login" className="text-[#A5ADC8] hover:text-white font-medium flex items-center gap-1 transition-colors">
               <Lock className="w-3 h-3" />
               <span>Internal Staff Console</span>
             </Link>

@@ -397,7 +397,7 @@ export default function IncidentDetailPage() {
           </button>
           <Link
             href={`/incidents/${incidentId}/impact`}
-            className="ml-auto px-3.5 py-1.5 rounded-[11px] text-xs font-heading font-bold flex items-center gap-1.5 text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-colors"
+            className="w-full sm:w-auto sm:ml-auto px-3.5 py-1.5 rounded-[11px] text-xs font-heading font-bold flex items-center justify-center sm:justify-start gap-1.5 text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-300 transition-colors"
           >
             <Activity className="w-3.5 h-3.5 text-amber-600" /> Deep Impact &amp; Forecast Analysis &rarr;
           </Link>
@@ -423,7 +423,7 @@ export default function IncidentDetailPage() {
               <span className="text-[10px] text-[#464B5E] font-mono">Live Ingestion</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-xs">
+              <table className="w-full text-left border-collapse text-xs min-w-[700px]">
                 <thead>
                   <tr className="border-b border-[#D8D6CE] bg-[#FBFAF7] text-[11px] font-heading font-semibold text-[#464B5E]">
                     <th className="py-2.5 px-4">Ticket</th>

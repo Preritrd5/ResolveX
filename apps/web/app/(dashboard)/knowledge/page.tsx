@@ -104,7 +104,7 @@ export default function KnowledgePage() {
 
       {/* Live RAG Semantic Search Bar */}
       <div className="p-4 bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] space-y-3">
-        <form onSubmit={handleSearch} className="flex gap-2">
+        <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#73778B]" />
             <input
@@ -118,7 +118,7 @@ export default function KnowledgePage() {
           <button
             type="submit"
             disabled={searching}
-            className="px-4 py-2 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6A6CD2] hover:to-[#4547B8] text-white text-xs font-heading font-semibold rounded-[11px] shadow-[0_2px_10px_rgba(80,82,201,0.22)] transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
+            className="px-4 py-2 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6A6CD2] hover:to-[#4547B8] text-white text-xs font-heading font-semibold rounded-[11px] shadow-[0_2px_10px_rgba(80,82,201,0.22)] transition-all cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
           >
             <Sparkles className="w-3.5 h-3.5" /> {searching ? "Searching..." : "RAG Query"}
           </button>

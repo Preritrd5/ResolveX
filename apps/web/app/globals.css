@@ -4,29 +4,29 @@
 
 @layer base {
   :root {
-    --background: 42 12% 91%;       /* #EDEBE5 Unify Canvas */
+    --background: 215 25% 95%;       /* #EEF2F7 Light Pearl Canvas */
     --foreground: 228 23% 19%;      /* #24283A Primary Text */
-    --card: 45 20% 97%;             /* #F8F7F3 Surface */
+    --card: 0 0% 100%;              /* Frosted White Base */
     --card-foreground: 228 23% 19%;
     --primary: 239 52% 55%;         /* #5052C9 Primary Brand */
     --primary-foreground: 0 0% 100%;
-    --secondary: 48 11% 93%;        /* #EFEEE9 Header/Footer */
-    --secondary-foreground: 228 22% 21%; /* #292D40 Secondary Text */
-    --muted: 42 12% 91%;            /* #EDEBE5 */
+    --secondary: 215 20% 93%;       /* Light Pearl Accent */
+    --secondary-foreground: 228 22% 21%;
+    --muted: 215 25% 95%;
     --muted-foreground: 228 15% 32%; /* #464B5E Muted Text */
     --accent: 242 22% 91%;          /* #E5E4EE Primary Tint */
     --accent-foreground: 239 52% 55%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 50 5% 76%;            /* #C6C5BE Border */
-    --input: 47 7% 73%;             /* #BDBCB5 Input Border */
+    --border: 215 20% 86%;          /* #D2D9E4 Cool Slate Rim */
+    --input: 215 18% 82%;
     --ring: 239 52% 55%;            /* #5052C9 */
     --radius: 1.25rem;              /* 20px */
   }
 
   body {
     color: #24283A;
-    background-color: #EDEBE5;
+    background-color: #EEF2F7;
     font-family: var(--font-inter), sans-serif;
     font-weight: 500;
   }
@@ -44,12 +44,34 @@
 }
 
 @layer components {
-  /* Unify Card Baseline */
+  /* Unify Frosted Glass Card */
   .unify-card {
-    background-color: #F8F7F3;
-    border: 1.5px solid #C6C5BE;
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 255, 255, 0.85);
     border-radius: 20px;
-    box-shadow: 0 2px 12px rgba(35, 39, 55, 0.06);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.06), 0 1px 4px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
+  }
+
+  /* Unify Subtle Translucent Surface */
+  .unify-surface-subtle {
+    background: rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(255, 255, 255, 0.75);
+    border-radius: 16px;
+    box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.03);
+  }
+
+  /* Unify Elevated Frosted Surface */
+  .unify-surface-elevated {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1.5px solid rgba(255, 255, 255, 0.92);
+    border-radius: 16px;
+    box-shadow: 0 12px 36px 0 rgba(31, 38, 135, 0.08), 0 2px 8px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.95);
   }
 
   /* Unify Primary Button */
@@ -73,32 +95,39 @@
     box-shadow: 0 4px 14px rgba(80, 82, 201, 0.28);
   }
 
-  /* Unify Secondary Button */
+  /* Unify Secondary Button (Frosted Glass) */
   .unify-btn-secondary {
     height: 44px;
     padding-left: 24px;
     padding-right: 24px;
     border-radius: 12px;
-    background-color: #F8F7F3;
-    border: 1.5px solid #BDBCB5;
-    color: #292D40;
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.9);
+    color: #24283A;
     font-weight: 600;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    box-shadow: 0 2px 8px rgba(31, 38, 135, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.9);
     transition: all 0.2s ease;
   }
   .unify-btn-secondary:hover {
-    background-color: #EDEBE5;
-    border-color: #C6C5BE;
+    background: rgba(255, 255, 255, 0.92);
+    border-color: #FFFFFF;
+    box-shadow: 0 4px 14px rgba(31, 38, 135, 0.08);
+    transform: translateY(-1px);
   }
 
   /* Unify Input */
   .unify-input {
     height: 44px;
-    background-color: #FBFAF7;
-    border: 1.5px solid #BDBCB5;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1.5px solid rgba(208, 217, 230, 0.8);
     border-radius: 11px;
     color: #24283A;
     padding-left: 14px;
@@ -111,23 +140,28 @@
   }
   .unify-input:focus {
     outline: none;
-    border-color: #5B5CE2;
+    background: rgba(255, 255, 255, 0.95);
+    border-color: #5052C9;
     box-shadow: 0 0 0 3px rgba(80, 82, 201, 0.18);
   }
 
   /* Unify Header */
   .unify-header {
     height: 72px;
-    background-color: rgba(248, 247, 243, 0.90);
+    background: rgba(255, 255, 255, 0.82);
     backdrop-filter: blur(16px);
-    border-bottom: 1.5px solid #C6C5BE;
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.85);
   }
 
-  /* Unify AI Insights Container */
+  /* Unify AI Insights Container (Frosted Tint Glass) */
   .unify-ai-insight {
-    background: linear-gradient(135deg, #EEF0FA 0%, #E5E4EE 100%);
-    border: 2px solid #BFC1E4;
+    background: linear-gradient(135deg, rgba(238, 240, 250, 0.85) 0%, rgba(229, 228, 238, 0.75) 100%);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 2px solid rgba(191, 193, 228, 0.85);
     border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(80, 82, 201, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9);
     color: #24283A;
   }
 }

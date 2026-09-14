@@ -89,55 +89,57 @@ export default function CustomersPage() {
         <EmptyState title="No customers found" description="Try searching for a different name or email address." />
       ) : (
         <div className="bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] overflow-hidden">
-          <table className="w-full text-left text-xs border-collapse">
-            <thead className="bg-[#FBFAF7] border-b border-[#D8D6CE] text-[#464B5E] uppercase tracking-wider font-heading font-semibold text-[11px]">
-              <tr>
-                <th className="py-3 px-4">Customer</th>
-                <th className="py-3 px-4">External ID</th>
-                <th className="py-3 px-4">Phone</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Registered</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#D8D6CE] text-[#24283A]">
-              {customers.map((c) => (
-                <tr key={c.id} className="hover:bg-[#FBFAF7]/60 transition-colors">
-                  <td className="py-3 px-4">
-                    <Link href={`/customers/${c.id}`} className="font-heading font-bold text-[#24283A] hover:text-[#5052C9] block">
-                      {c.full_name}
-                    </Link>
-                    <div className="text-[10px] text-[#464B5E] font-mono">{c.email}</div>
-                  </td>
-                  <td className="py-3 px-4 font-mono text-[11px] text-[#464B5E]">
-                    {c.external_customer_id || "N/A"}
-                  </td>
-                  <td className="py-3 px-4 text-[#464B5E] font-mono text-[11px]">
-                    {c.phone || "—"}
-                  </td>
-                  <td className="py-3 px-4">
-                    <span className="px-2.5 py-0.5 rounded-[6px] text-[10px] font-heading font-semibold capitalize bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="py-3 px-4 text-[#464B5E] whitespace-nowrap font-mono text-[11px]">
-                    {formatDate(c.created_at)}
-                  </td>
-                  <td className="py-3 px-4 text-right">
-                    <Link
-                      href={`/customers/${c.id}`}
-                      className="inline-flex items-center gap-1 text-xs text-[#5052C9] hover:underline font-heading font-semibold"
-                    >
-                      View 360 <ArrowRight className="w-3 h-3" />
-                    </Link>
-                  </td>
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-xs border-collapse min-w-[700px]">
+              <thead className="bg-[#FBFAF7] border-b border-[#D8D6CE] text-[#464B5E] uppercase tracking-wider font-heading font-semibold text-[11px]">
+                <tr>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4">External ID</th>
+                  <th className="py-3 px-4">Phone</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4">Registered</th>
+                  <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-[#D8D6CE] text-[#24283A]">
+                {customers.map((c) => (
+                  <tr key={c.id} className="hover:bg-[#FBFAF7]/60 transition-colors">
+                    <td className="py-3 px-4">
+                      <Link href={`/customers/${c.id}`} className="font-heading font-bold text-[#24283A] hover:text-[#5052C9] block">
+                        {c.full_name}
+                      </Link>
+                      <div className="text-[10px] text-[#464B5E] font-mono">{c.email}</div>
+                    </td>
+                    <td className="py-3 px-4 font-mono text-[11px] text-[#464B5E]">
+                      {c.external_customer_id || "N/A"}
+                    </td>
+                    <td className="py-3 px-4 text-[#464B5E] font-mono text-[11px]">
+                      {c.phone || "—"}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span className="px-2.5 py-0.5 rounded-[6px] text-[10px] font-heading font-semibold capitalize bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {c.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-[#464B5E] whitespace-nowrap font-mono text-[11px]">
+                      {formatDate(c.created_at)}
+                    </td>
+                    <td className="py-3 px-4 text-right">
+                      <Link
+                        href={`/customers/${c.id}`}
+                        className="inline-flex items-center gap-1 text-xs text-[#5052C9] hover:underline font-heading font-semibold"
+                      >
+                        View 360 <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
           {/* Pagination */}
-          <div className="px-4 py-3 border-t border-[#D8D6CE] bg-[#FBFAF7] flex items-center justify-between text-xs text-[#464B5E]">
+          <div className="px-4 py-3 border-t border-[#D8D6CE] bg-[#FBFAF7] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#464B5E]">
             <div>
               Showing page <span className="font-heading font-bold text-[#24283A]">{page}</span> of{" "}
               <span className="font-heading font-bold text-[#24283A]">{totalPages}</span> ({total} customers)

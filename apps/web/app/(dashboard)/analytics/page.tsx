@@ -477,7 +477,7 @@ export default function AnalyticsPage() {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-xs">
+          <table className="w-full text-left border-collapse text-xs min-w-[720px]">
             <thead className="bg-[#FBFAF7] border-b border-[#D8D6CE] text-[#464B5E] text-[10px] uppercase font-heading font-semibold">
               <tr>
                 <th className="py-2.5 px-4">Incident</th>

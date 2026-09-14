@@ -157,7 +157,8 @@ export default function EscalationsPage() {
         />
       ) : (
         <div className="bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] overflow-hidden">
-          <table className="w-full text-left text-xs border-collapse">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left text-xs border-collapse min-w-[850px]">
             <thead className="bg-[#FBFAF7] border-b border-[#D8D6CE] text-[#464B5E] uppercase tracking-wider font-heading font-semibold text-[11px]">
               <tr>
                 <th className="py-3 px-4">Ticket #</th>
@@ -229,6 +230,7 @@ export default function EscalationsPage() {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>

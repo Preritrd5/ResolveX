@@ -356,8 +356,8 @@ export default function CasesPage() {
         />
       ) : (
         <div className="bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] overflow-hidden">
-          <div className="w-full">
-            <table className="w-full text-left border-collapse text-xs table-fixed">
+          <div className="w-full overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs table-fixed min-w-[960px]">
               <thead>
                 <tr className="border-b-[1.5px] border-[#D8D6CE] bg-[#EFEEE9]/90 text-[10px] font-bold text-[#464B5E] uppercase tracking-wider font-mono">
                   <th className="py-3 px-3.5 w-20">Priority</th>
@@ -507,7 +507,7 @@ export default function CasesPage() {
           </div>
 
           {/* Pagination Footer */}
-          <div className="p-3.5 border-t-[1.5px] border-[#D8D6CE] bg-[#EFEEE9]/80 flex items-center justify-between text-xs text-[#464B5E]">
+          <div className="p-3.5 border-t-[1.5px] border-[#D8D6CE] bg-[#EFEEE9]/80 flex flex-col sm:flex-row items-center justify-between gap-2.5 text-xs text-[#464B5E]">
             <div className="text-[11px] font-medium">
               Page <span className="font-bold text-[#24283A]">{page}</span> of{" "}
               <span className="font-bold text-[#24283A]">{totalPages}</span> ({total} cases total)

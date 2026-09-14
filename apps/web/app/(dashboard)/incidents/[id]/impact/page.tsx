@@ -199,7 +199,7 @@ export default function IncidentImpactPage() {
       )}
 
       {/* 4 Classification Metrics Bar */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {/* Confirmed Affected */}
         <div className="p-4 bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)]">
           <div className="flex items-center justify-between text-rose-700">
@@ -249,7 +249,7 @@ export default function IncidentImpactPage() {
         </div>
 
         {/* Total Exposure Value */}
-        <div className="p-4 bg-[#24283A] text-white rounded-[20px] shadow-[0_2px_12px_rgba(35,39,55,0.08)] border border-[#3E4358] col-span-2 lg:col-span-1">
+        <div className="p-4 bg-[#24283A] text-white rounded-[20px] shadow-[0_2px_12px_rgba(35,39,55,0.08)] border border-[#3E4358] col-span-1 sm:col-span-2 lg:col-span-1">
           <div className="flex items-center justify-between text-[#BFC1E4]">
             <span className="text-[11px] font-heading font-bold uppercase tracking-wider">At-Risk Value</span>
             <DollarSign className="w-4 h-4 text-[#7779D8]" />

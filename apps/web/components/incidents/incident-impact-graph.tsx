@@ -160,15 +160,15 @@ export function IncidentImpactGraph({ nodes: initialNodes, edges: initialEdges }
   );
 
   return (
-    <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl flex flex-col h-[520px]">
+    <div className="bg-slate-950 rounded-xl border border-slate-800 overflow-hidden shadow-xl flex flex-col h-[440px] sm:h-[520px]">
       {/* Canvas Top Bar */}
-      <div className="px-5 py-3 border-b border-slate-800 bg-slate-900 flex items-center justify-between text-xs text-white">
-        <div className="flex items-center gap-2">
-          <Network className="w-4 h-4 text-indigo-400" />
-          <span className="font-bold tracking-tight">Customer Impact & Root Cause Graph</span>
-          <span className="text-[10px] text-slate-400 font-mono">React Flow Canvas</span>
+      <div className="px-4 sm:px-5 py-3 border-b border-slate-800 bg-slate-900 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-white">
+        <div className="flex items-center gap-2 min-w-0">
+          <Network className="w-4 h-4 text-indigo-400 shrink-0" />
+          <span className="font-bold tracking-tight truncate">Customer Impact &amp; Root Cause Graph</span>
+          <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">React Flow Canvas</span>
         </div>
-        <div className="flex items-center gap-3 text-[11px] text-slate-400">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Root Telemetry
           </span>

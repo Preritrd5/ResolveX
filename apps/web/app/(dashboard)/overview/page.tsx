@@ -146,7 +146,7 @@ export default function OverviewPage() {
               <Radio className="w-5 h-5 animate-pulse text-[#5052C9]" />
             </span>
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-xs font-heading font-bold uppercase tracking-wider text-[#24283A]">
                   Early Warning Anomaly Detected
                 </span>
@@ -337,17 +337,17 @@ export default function OverviewPage() {
             {data.investigating_cases} customer complaints currently undergoing automated background investigation. Real-time telemetry monitoring 3 microservice worker streams.
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
           <Link
             href="/cases"
-            className="unify-btn-primary h-10 px-5 text-xs"
+            className="unify-btn-primary h-10 px-5 text-xs justify-center"
           >
             <span>View Live Cases</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </Link>
           <Link
             href="/escalations"
-            className="h-10 px-5 rounded-[12px] bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors flex items-center gap-1.5"
+            className="h-10 px-5 rounded-[12px] bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1.5"
           >
             <span>Escalation Desk</span>
             <ArrowRight className="w-3.5 h-3.5" />

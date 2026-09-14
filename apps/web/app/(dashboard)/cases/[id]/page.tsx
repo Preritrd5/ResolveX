@@ -148,11 +148,11 @@ export default function CaseDetailPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Top Breadcrumb & Quick Actions */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <Link href="/cases" className="inline-flex items-center gap-1.5 text-xs text-[#464B5E] hover:text-[#24283A] font-medium transition-colors">
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Live Cases
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {ticket.recommended_team && (
             <span className="text-xs px-2.5 py-1 rounded-full font-semibold bg-[#E5E4EE] text-[#5052C9] border border-[#BFC1E4]">
               Team: {ticket.recommended_team}
@@ -174,7 +174,7 @@ export default function CaseDetailPage() {
       {/* Case Header Banner */}
       <div className="p-6 bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-[#C6C5BE] shadow-[0_2px_12px_rgba(35,39,55,0.06)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <span className="font-mono text-xs font-bold text-[#5052C9] bg-[#E5E4EE] px-2 py-0.5 rounded-[6px]">
               {ticket.ticket_number}
             </span>
@@ -198,7 +198,7 @@ export default function CaseDetailPage() {
       {incidentLink && incidentLink.is_linked && (
         <div className="p-4 bg-[#24283A] text-[#EDEBE5] rounded-[16px] border border-[#3E4358] shadow-[0_2px_12px_rgba(35,39,55,0.08)] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-rose-400 bg-rose-500/20 px-2 py-0.5 rounded-[6px] border border-rose-500/30">
                 <AlertOctagon className="w-3.5 h-3.5" /> Systemic Incident Detected
               </span>

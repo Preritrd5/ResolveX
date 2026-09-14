@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ShieldCheck, ArrowRight, Sparkles, Lock, Mail, Building, User } from "lucide-react";
+import { AtmosphericBackground } from "@/components/ui/atmospheric-background";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -35,7 +36,8 @@ export default function SignUpPage() {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+      <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+        <AtmosphericBackground variant="auth" />
         <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
           <div className="inline-flex items-center gap-2.5">
             <div className="w-10 h-10 rounded-[11px] bg-gradient-to-r from-[#7779D8] to-[#5052C9] flex items-center justify-center text-white font-bold text-lg shadow-[0_2px_8px_rgba(80,82,201,0.25)]">
@@ -65,7 +67,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#EDEBE5] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+    <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative selection:bg-[#5052C9] selection:text-white font-sans text-[#24283A]">
+      <AtmosphericBackground variant="auth" />
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
         <Link href="/" className="inline-flex items-center gap-2.5 group">
           <div className="w-10 h-10 rounded-[11px] bg-gradient-to-r from-[#7779D8] to-[#5052C9] flex items-center justify-center text-white font-bold text-lg shadow-[0_2px_8px_rgba(80,82,201,0.25)] group-hover:scale-105 transition-transform">
@@ -91,9 +94,9 @@ export default function SignUpPage() {
             disabled={loading}
             className="w-full h-11 px-4 rounded-[11px] bg-[#E5E4EE] hover:bg-[#dedde8] border-[1.5px] border-[#BFC1E4] text-[#5052C9] text-xs font-semibold flex items-center justify-center gap-2 transition-all shadow-2xs"
           >
-            <Sparkles className="w-4 h-4 text-[#7779D8]" />
-        
-            <ArrowRight className="w-3.5 h-3.5 ml-auto" />
+            <Sparkles className="w-4 h-4 text-[#7779D8] shrink-0" />
+            <span className="truncate">1-Click Deploy Demo Workspace (seed=42)</span>
+            <ArrowRight className="w-3.5 h-3.5 ml-auto shrink-0" />
           </button>
 
           <div className="relative flex py-1 items-center">
