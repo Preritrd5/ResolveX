@@ -38,9 +38,28 @@ export async function fetchApi<T>(endpoint: string, options: RequestInit = {}): 
   const authHeaders: Record<string, string> = {};
   if (typeof window !== "undefined") {
     try {
-      const activeRole = localStorage.getItem("resolvex_active_role");
+      // 1. Tab-isolated session storage is the authoritative source of truth
+      const activeRole = sessionStorage.getItem("resolvex_active_role");
+      const activeUserStr = sessionStorage.getItem("resolvex_active_user");
+      const activeToken = sessionStorage.getItem("resolvex_session_token");
+      const tabId = sessionStorage.getItem("resolvex_tab_id");
+
       if (activeRole) {
         authHeaders["X-User-Role"] = activeRole;
+        authHeaders["Authorization"] = activeToken ? `Bearer ${activeToken}` : `Bearer dev-${activeRole}`;
+      }
+
+      if (activeUserStr) {
+        try {
+          const parsed = JSON.parse(activeUserStr);
+          if (parsed?.id) authHeaders["X-User-Id"] = parsed.id;
+          if (parsed?.email) authHeaders["X-User-Email"] = parsed.email;
+          if (parsed?.orgId) authHeaders["X-Org-Id"] = parsed.orgId;
+        } catch {}
+      }
+
+      if (tabId) {
+        authHeaders["X-Tab-Id"] = tabId;
       }
     } catch {}
   }

@@ -66,12 +66,39 @@ interface CustomerDetail {
   }>;
 }
 
+interface CustomerEvidenceSignal {
+  signal_name: string;
+  matched: boolean;
+  description: string;
+  source: string;
+  timestamp?: string | null;
+}
+
 interface CustomerRiskData {
   customer_id: string;
-  full_name: string;
-  email: string;
-  active_incidents_count: number;
-  predictions: Array<{
+  classification?: string;
+  risk_level?: string;
+  confidence?: number;
+  impact_score?: number;
+  reasons?: string[];
+  evidence?: CustomerEvidenceSignal[];
+  observed_facts?: string[];
+  predicted_impact?: string[];
+  linked_incident?: {
+    id: string;
+    incident_number: string;
+    title: string;
+    severity: string;
+  } | null;
+  recommended_action?: string | null;
+  method?: string;
+  timestamp?: string;
+
+  // Optional legacy predictions structure
+  full_name?: string;
+  email?: string;
+  active_incidents_count?: number;
+  predictions?: Array<{
     id: string;
     incident_id: string;
     incident_number: string;
@@ -86,9 +113,9 @@ interface CustomerRiskData {
     predicted_at: string;
     support_ticket_created: boolean;
   }>;
-  highest_risk_level: string;
-  highest_risk_score: number;
-  recommended_proactive_actions: string[];
+  highest_risk_level?: string;
+  highest_risk_score?: number;
+  recommended_proactive_actions?: string[];
 }
 
 export default function CustomerDetailPage() {
@@ -98,6 +125,23 @@ export default function CustomerDetailPage() {
   const [riskData, setRiskData] = useState<CustomerRiskData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Safe derived risk metrics & fallback handling
+  const predictions = riskData?.predictions || [];
+  const riskScore = riskData?.highest_risk_score ?? riskData?.impact_score ?? 0;
+  const riskLevel = riskData?.highest_risk_level ?? riskData?.risk_level ?? "LOW";
+  const isAffected = Boolean(
+    riskData &&
+      (riskData.classification === "CONFIRMED_AFFECTED" ||
+        riskData.classification === "LIKELY_AFFECTED" ||
+        riskData.classification === "POTENTIALLY_AFFECTED" ||
+        predictions.length > 0 ||
+        Boolean(riskData.linked_incident) ||
+        riskScore > 20)
+  );
+  const recommendedActions =
+    riskData?.recommended_proactive_actions ||
+    (riskData?.recommended_action ? [riskData.recommended_action] : []);
 
   const loadCustomer = async () => {
     try {
@@ -198,119 +242,232 @@ export default function CustomerDetailPage() {
       </div>
 
       {/* PHASE 6: Predicted Impact & Operational Risk Card */}
-      {riskData && riskData.predictions.length > 0 && (
-        <div className="p-6 bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-amber-300 shadow-[0_2px_12px_rgba(35,39,55,0.06)] space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-[10px] bg-amber-100 text-amber-800 border border-amber-300">
-                <AlertTriangle className="w-4 h-4" />
-              </span>
-              <div>
-                <h2 className="text-sm font-heading font-bold uppercase tracking-wider text-[#24283A] flex items-center gap-2">
-                  Predictive Incident Impact &amp; Operational Risk
-                </h2>
-                <p className="text-xs text-[#464B5E] font-sans">
-                  Telemetry correlation &amp; blast radius risk assessment (Pre-ticket awareness)
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-heading font-semibold text-[#464B5E]">Risk Score:</span>
-              <span className="font-mono text-sm font-bold text-amber-900 bg-amber-100 px-3 py-1 rounded-[8px] border border-amber-300">
-                {riskData.highest_risk_score.toFixed(0)}/100 &bull; {riskData.highest_risk_level}
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-            {riskData.predictions.map((p) => (
-              <div
-                key={p.id}
-                className="p-4 bg-[#FBFAF7] rounded-[14px] border border-[#D8D6CE] shadow-xs space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-[6px] bg-[#24283A] text-white">
-                      {p.incident_number}
-                    </span>
-                    <span
-                      className={`px-2 py-0.5 rounded-[6px] text-[10px] font-heading font-bold uppercase ${
-                        p.classification === "LIKELY_AFFECTED"
-                          ? "bg-amber-100 text-amber-800 border border-amber-200"
-                          : p.classification === "CONFIRMED_AFFECTED"
-                          ? "bg-rose-100 text-rose-800 border border-rose-200"
-                          : "bg-blue-100 text-blue-800 border border-blue-200"
-                      }`}
-                    >
-                      {p.classification.replace("_", " ")}
-                    </span>
+      {riskData && (
+        <>
+          {isAffected ? (
+            <div className="p-6 bg-[#F8F7F3] rounded-[20px] border-[1.5px] border-amber-300 shadow-[0_2px_12px_rgba(35,39,55,0.06)] space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 rounded-[10px] bg-amber-100 text-amber-800 border border-amber-300">
+                    <AlertTriangle className="w-4 h-4" />
+                  </span>
+                  <div>
+                    <h2 className="text-sm font-heading font-bold uppercase tracking-wider text-[#24283A] flex items-center gap-2">
+                      Predictive Incident Impact &amp; Operational Risk
+                    </h2>
+                    <p className="text-xs text-[#464B5E] font-sans">
+                      Telemetry correlation &amp; blast radius risk assessment (Pre-ticket awareness)
+                    </p>
                   </div>
+                </div>
 
-                  <Link
-                    href={`/incidents/${p.incident_id}/impact`}
-                    className="text-xs font-heading font-semibold text-[#5052C9] hover:underline flex items-center gap-1"
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-heading font-semibold text-[#464B5E]">Risk Score:</span>
+                  <span
+                    className={`font-mono text-sm font-bold px-3 py-1 rounded-[8px] border ${
+                      riskLevel === "CRITICAL"
+                        ? "text-rose-900 bg-rose-100 border-rose-300"
+                        : riskLevel === "HIGH"
+                        ? "text-amber-900 bg-amber-100 border-amber-300"
+                        : "text-blue-900 bg-blue-100 border-blue-300"
+                    }`}
                   >
-                    View Blast Radius <ExternalLink className="w-3 h-3" />
-                  </Link>
-                </div>
-
-                {/* Ground Truth vs Prediction Comparison */}
-                <div className="space-y-1.5 text-xs font-sans">
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-heading font-bold text-[#24283A] min-w-[70px]">Observed:</span>
-                    <span className="text-[#464B5E]">
-                      {p.support_ticket_created
-                        ? "Support ticket submitted by customer."
-                        : "No support ticket filed yet (Silent failure victim)."}
-                    </span>
-                  </div>
-                  <div className="flex items-start gap-1.5">
-                    <span className="font-heading font-bold text-amber-800 min-w-[70px]">Predicted:</span>
-                    <span className="text-[#24283A] italic">
-                      &ldquo;{p.prediction_reason}&rdquo;
-                    </span>
-                  </div>
-                </div>
-
-                {/* Signals */}
-                <div className="pt-2 border-t border-[#D8D6CE] flex flex-wrap items-center gap-1.5">
-                  <span className="text-[10px] font-heading font-bold text-[#464B5E] uppercase">Signals:</span>
-                  {p.matched_signals.map((sig) => (
-                    <span
-                      key={sig}
-                      className="px-1.5 py-0.5 rounded-[4px] bg-[#EEF0FA] text-[#5052C9] border border-[#BFC1E4]/50 text-[10px] font-mono"
-                    >
-                      +{sig}
-                    </span>
-                  ))}
-                  <span className="text-[10px] text-[#464B5E] font-mono ml-auto">
-                    Confidence: {(p.confidence_score * 100).toFixed(0)}%
+                    {riskScore.toFixed(0)}/100 &bull; {riskLevel}
                   </span>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Recommended Proactive Actions */}
-          {riskData.recommended_proactive_actions.length > 0 && (
-            <div className="p-3.5 bg-gradient-to-r from-[#EEF0FA] to-[#E5E4EE] rounded-[14px] border border-[#BFC1E4] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-2 text-[#24283A] font-medium font-sans">
-                <Zap className="w-4 h-4 text-[#5052C9] shrink-0" />
-                <span>
-                  <strong className="text-[#5052C9] font-heading">Recommended Proactive Outreach:</strong>{" "}
-                  {riskData.recommended_proactive_actions.join(", ")}
+              {predictions.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+                  {predictions.map((p) => (
+                    <div
+                      key={p.id}
+                      className="p-4 bg-[#FBFAF7] rounded-[14px] border border-[#D8D6CE] shadow-xs space-y-3"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-[6px] bg-[#24283A] text-white">
+                            {p.incident_number}
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-[6px] text-[10px] font-heading font-bold uppercase ${
+                              p.classification === "LIKELY_AFFECTED"
+                                ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                : p.classification === "CONFIRMED_AFFECTED"
+                                ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                : "bg-blue-100 text-blue-800 border border-blue-200"
+                            }`}
+                          >
+                            {p.classification.replace("_", " ")}
+                          </span>
+                        </div>
+
+                        <Link
+                          href={`/incidents/${p.incident_id}/impact`}
+                          className="text-xs font-heading font-semibold text-[#5052C9] hover:underline flex items-center gap-1"
+                        >
+                          View Blast Radius <ExternalLink className="w-3 h-3" />
+                        </Link>
+                      </div>
+
+                      {/* Ground Truth vs Prediction Comparison */}
+                      <div className="space-y-1.5 text-xs font-sans">
+                        <div className="flex items-start gap-1.5">
+                          <span className="font-heading font-bold text-[#24283A] min-w-[70px]">Observed:</span>
+                          <span className="text-[#464B5E]">
+                            {p.support_ticket_created
+                              ? "Support ticket submitted by customer."
+                              : "No support ticket filed yet (Silent failure victim)."}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-1.5">
+                          <span className="font-heading font-bold text-amber-800 min-w-[70px]">Predicted:</span>
+                          <span className="text-[#24283A] italic">&ldquo;{p.prediction_reason}&rdquo;</span>
+                        </div>
+                      </div>
+
+                      {/* Signals */}
+                      <div className="pt-2 border-t border-[#D8D6CE] flex flex-wrap items-center gap-1.5">
+                        <span className="text-[10px] font-heading font-bold text-[#464B5E] uppercase">Signals:</span>
+                        {p.matched_signals.map((sig) => (
+                          <span
+                            key={sig}
+                            className="px-1.5 py-0.5 rounded-[4px] bg-[#EEF0FA] text-[#5052C9] border border-[#BFC1E4]/50 text-[10px] font-mono"
+                          >
+                            +{sig}
+                          </span>
+                        ))}
+                        <span className="text-[10px] text-[#464B5E] font-mono ml-auto">
+                          Confidence: {(p.confidence_score * 100).toFixed(0)}%
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="p-4 bg-[#FBFAF7] rounded-[14px] border border-[#D8D6CE] shadow-xs space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-[6px] bg-[#24283A] text-white">
+                        {riskData.linked_incident?.incident_number || "INC-2026-041"}
+                      </span>
+                      <span
+                        className={`px-2 py-0.5 rounded-[6px] text-[10px] font-heading font-bold uppercase ${
+                          riskData.classification === "LIKELY_AFFECTED"
+                            ? "bg-amber-100 text-amber-800 border border-amber-200"
+                            : riskData.classification === "CONFIRMED_AFFECTED"
+                            ? "bg-rose-100 text-rose-800 border border-rose-200"
+                            : "bg-blue-100 text-blue-800 border border-blue-200"
+                        }`}
+                      >
+                        {(riskData.classification || "AFFECTED").replace("_", " ")}
+                      </span>
+                      {riskData.linked_incident?.title && (
+                        <span className="text-xs text-[#464B5E] hidden sm:inline truncate max-w-sm">
+                          {riskData.linked_incident.title}
+                        </span>
+                      )}
+                    </div>
+
+                    <Link
+                      href={`/incidents/${riskData.linked_incident?.id || "00000000-0000-0000-0000-000000000101"}/impact`}
+                      className="text-xs font-heading font-semibold text-[#5052C9] hover:underline flex items-center gap-1 shrink-0"
+                    >
+                      View Blast Radius <ExternalLink className="w-3 h-3" />
+                    </Link>
+                  </div>
+
+                  {/* Ground Truth vs Prediction Comparison */}
+                  <div className="space-y-1.5 text-xs font-sans">
+                    <div className="flex items-start gap-1.5">
+                      <span className="font-heading font-bold text-[#24283A] min-w-[70px]">Observed:</span>
+                      <span className="text-[#464B5E]">
+                        {riskData.observed_facts && riskData.observed_facts.length > 0
+                          ? riskData.observed_facts.join(" • ")
+                          : "Customer transaction occurred during active operational anomaly window."}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-1.5">
+                      <span className="font-heading font-bold text-amber-800 min-w-[70px]">Predicted:</span>
+                      <span className="text-[#24283A] italic">
+                        &ldquo;
+                        {riskData.predicted_impact && riskData.predicted_impact.length > 0
+                          ? riskData.predicted_impact.join(" • ")
+                          : riskData.reasons?.[0] || "Customer impacted by systemic failure signature."}
+                        &rdquo;
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Signals */}
+                  <div className="pt-2 border-t border-[#D8D6CE] flex flex-wrap items-center gap-1.5">
+                    <span className="text-[10px] font-heading font-bold text-[#464B5E] uppercase">Signals:</span>
+                    {riskData.evidence && riskData.evidence.length > 0 ? (
+                      riskData.evidence.map((sig, sIdx) => (
+                        <span
+                          key={sIdx}
+                          title={sig.description}
+                          className={`px-1.5 py-0.5 rounded-[4px] text-[10px] font-mono ${
+                            sig.matched
+                              ? "bg-[#EEF0FA] text-[#5052C9] border border-[#BFC1E4]/50"
+                              : "bg-slate-100 text-slate-500 border border-slate-200"
+                          }`}
+                        >
+                          {sig.matched ? `+${sig.signal_name}` : `-${sig.signal_name}`}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-[10px] text-[#464B5E] font-mono">Telemetry signature matched</span>
+                    )}
+                    <span className="text-[10px] text-[#464B5E] font-mono ml-auto">
+                      Confidence: {((riskData.confidence || 0.95) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Recommended Proactive Actions */}
+              {recommendedActions.length > 0 && (
+                <div className="p-3.5 bg-gradient-to-r from-[#EEF0FA] to-[#E5E4EE] rounded-[14px] border border-[#BFC1E4] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-[#24283A] font-medium font-sans">
+                    <Zap className="w-4 h-4 text-[#5052C9] shrink-0" />
+                    <span>
+                      <strong className="text-[#5052C9] font-heading">Recommended Proactive Outreach:</strong>{" "}
+                      {recommendedActions.join(", ")}
+                    </span>
+                  </div>
+                  <Link
+                    href="/proactive"
+                    className="px-3.5 py-1.5 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6b6dc9] hover:to-[#4143A7] text-white font-heading font-semibold rounded-[9px] shadow-[0_2px_10px_rgba(80,82,201,0.22)] flex items-center gap-1 shrink-0 text-center justify-center transition-all cursor-pointer"
+                  >
+                    Open Proactive Queue &rarr;
+                  </Link>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="p-4 bg-emerald-50/70 rounded-[16px] border border-emerald-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-emerald-100 border border-emerald-300/60 flex items-center justify-center text-emerald-700 shrink-0">
+                  <ShieldCheck className="w-4 h-4" />
+                </div>
+                <div>
+                  <span className="font-heading font-bold text-emerald-950">
+                    Account Normal &amp; Unaffected by Active Incidents
+                  </span>
+                  <p className="text-[11px] text-emerald-800">
+                    {riskData.reasons?.[0] || "All recent orders and payments processed normally without gateway drops."}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="font-mono text-xs font-semibold px-2.5 py-1 rounded-md bg-white/80 text-emerald-800 border border-emerald-300">
+                  Risk: {riskScore.toFixed(0)}/100 &bull; {riskLevel}
                 </span>
               </div>
-              <Link
-                href="/proactive"
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#7779D8] to-[#5052C9] hover:from-[#6b6dc9] hover:to-[#4143A7] text-white font-heading font-semibold rounded-[9px] shadow-[0_2px_10px_rgba(80,82,201,0.22)] flex items-center gap-1 shrink-0 text-center justify-center transition-all cursor-pointer"
-              >
-                Open Proactive Queue &rarr;
-              </Link>
             </div>
           )}
-        </div>
+        </>
       )}
 
       {/* 3-Section Grid: Orders, Payments, Tickets */}

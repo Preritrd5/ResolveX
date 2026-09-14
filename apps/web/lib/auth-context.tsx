@@ -84,9 +84,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Default to Maya Patel (Lead Investigator)
   const [user, setUser] = useState<UserPersona>(PRESET_PERSONAS[2]);
 
+  // Tab Session Initialization & Legacy Migration
   useEffect(() => {
     try {
-      const savedRole = localStorage.getItem("resolvex_active_role");
+      // 1. Establish unique tab identifier for observability and correlation
+      let tabId = sessionStorage.getItem("resolvex_tab_id");
+      if (!tabId) {
+        tabId = "tab_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now().toString(36);
+        sessionStorage.setItem("resolvex_tab_id", tabId);
+      }
+
+      // 2. Load tab-isolated session from sessionStorage
+      let savedRole = sessionStorage.getItem("resolvex_active_role");
+      let savedCustom = sessionStorage.getItem("resolvex_user_profile");
+
+      // Backward-compatibility migration: if this tab has no session yet but localStorage has legacy data,
+      // safely migrate into this tab's sessionStorage and clear localStorage to avoid cross-tab leakage.
+      if (!savedRole && typeof localStorage !== "undefined") {
+        const legacyRole = localStorage.getItem("resolvex_active_role");
+        const legacyCustom = localStorage.getItem("resolvex_user_profile");
+        if (legacyRole) {
+          savedRole = legacyRole;
+          sessionStorage.setItem("resolvex_active_role", legacyRole);
+          sessionStorage.setItem("resolvex_session_token", `dev-${legacyRole}`);
+          try {
+            localStorage.removeItem("resolvex_active_role");
+          } catch {}
+        }
+        if (legacyCustom) {
+          savedCustom = legacyCustom;
+          sessionStorage.setItem("resolvex_user_profile", legacyCustom);
+          try {
+            localStorage.removeItem("resolvex_user_profile");
+          } catch {}
+        }
+      }
+
       let activeUser = PRESET_PERSONAS[2];
       if (savedRole) {
         const found = PRESET_PERSONAS.find((p) => p.role === savedRole);
@@ -94,17 +127,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           activeUser = found;
         }
       }
-      const savedCustom = localStorage.getItem("resolvex_user_profile");
       if (savedCustom) {
         const parsed = JSON.parse(savedCustom);
         if (parsed && typeof parsed === "object") {
           activeUser = { ...activeUser, ...parsed };
         }
       }
+
+      // Synchronize full active_user record for tab-scoped api-client
+      sessionStorage.setItem("resolvex_active_user", JSON.stringify(activeUser));
+      sessionStorage.setItem("resolvex_session_token", `dev-${activeUser.role}`);
       setUser(activeUser);
     } catch {
-      // localStorage not accessible
+      // Storage access blocked or restricted
     }
+  }, []);
+
+  // Targeted Cross-Tab Security Invalidation (BroadcastChannel)
+  useEffect(() => {
+    if (typeof window === "undefined" || !("BroadcastChannel" in window)) {
+      return;
+    }
+
+    let channel: BroadcastChannel | null = null;
+    try {
+      channel = new BroadcastChannel("resolvex_auth_events");
+      channel.onmessage = (event: MessageEvent) => {
+        const data = event.data;
+        if (data && data.type === "USER_LOGOUT") {
+          // Only invalidate if THIS tab is running as the specific logged-out user
+          setUser((currentUser) => {
+            const isTargetUser =
+              (data.userId && currentUser.id === data.userId) ||
+              (data.userEmail && currentUser.email.toLowerCase() === data.userEmail.toLowerCase());
+
+            if (isTargetUser) {
+              try {
+                sessionStorage.removeItem("resolvex_active_role");
+                sessionStorage.removeItem("resolvex_active_user");
+                sessionStorage.removeItem("resolvex_user_profile");
+                sessionStorage.removeItem("resolvex_session_token");
+              } catch {}
+              return PRESET_PERSONAS[2]; // Fallback to baseline default
+            }
+
+            // Other user logged out in another tab — remain completely unaffected
+            return currentUser;
+          });
+        }
+      };
+    } catch {}
+
+    return () => {
+      try {
+        channel?.close();
+      } catch {}
+    };
   }, []);
 
   const switchRole = (newRole: RoleType) => {
@@ -112,8 +190,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (found) {
       setUser(found);
       try {
-        localStorage.setItem("resolvex_active_role", newRole);
-        localStorage.removeItem("resolvex_user_profile");
+        // Tab-isolated session storage
+        sessionStorage.setItem("resolvex_active_role", newRole);
+        sessionStorage.setItem("resolvex_active_user", JSON.stringify(found));
+        sessionStorage.setItem("resolvex_session_token", `dev-${newRole}`);
+        sessionStorage.removeItem("resolvex_user_profile");
+
+        // Clean up legacy localStorage if still present
+        if (typeof localStorage !== "undefined") {
+          localStorage.removeItem("resolvex_active_role");
+          localStorage.removeItem("resolvex_user_profile");
+        }
       } catch {}
     }
   };
@@ -139,22 +226,52 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         initials: updates.initials || initials,
       };
       try {
-        localStorage.setItem("resolvex_user_profile", JSON.stringify({
+        const customPayload = {
           fullName: updated.fullName,
           email: updated.email,
           initials: updated.initials,
           description: updated.description,
-        }));
+        };
+        sessionStorage.setItem("resolvex_user_profile", JSON.stringify(customPayload));
+        sessionStorage.setItem("resolvex_active_user", JSON.stringify(updated));
+
+        // Clean up legacy localStorage if still present
+        if (typeof localStorage !== "undefined") {
+          localStorage.removeItem("resolvex_user_profile");
+        }
       } catch {}
       return updated;
     });
   };
 
   const logout = () => {
+    const activeSnapshot = user;
     try {
-      localStorage.removeItem("resolvex_active_role");
-      localStorage.removeItem("resolvex_user_profile");
+      sessionStorage.removeItem("resolvex_active_role");
+      sessionStorage.removeItem("resolvex_active_user");
+      sessionStorage.removeItem("resolvex_user_profile");
+      sessionStorage.removeItem("resolvex_session_token");
+
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("resolvex_active_role");
+        localStorage.removeItem("resolvex_user_profile");
+      }
     } catch {}
+
+    // Broadcast targeted security logout event to other tabs running as this user
+    if (typeof window !== "undefined" && "BroadcastChannel" in window && activeSnapshot) {
+      try {
+        const channel = new BroadcastChannel("resolvex_auth_events");
+        channel.postMessage({
+          type: "USER_LOGOUT",
+          userId: activeSnapshot.id,
+          userEmail: activeSnapshot.email,
+          timestamp: Date.now(),
+        });
+        channel.close();
+      } catch {}
+    }
+
     setUser(PRESET_PERSONAS[2]); // Fallback to default
   };
 

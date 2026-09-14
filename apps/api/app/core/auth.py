@@ -93,18 +93,20 @@ async def get_current_user(
     x_org_id: Optional[str] = Header(None),
     x_user_id: Optional[str] = Header(None),
     x_user_email: Optional[str] = Header(None),
+    x_tab_id: Optional[str] = Header(None),
 ) -> UserSessionSchema:
     """
     Extracts user session identity and organization scoping.
-    Supports Supabase JWT tokens, developer persona headers, and deterministic demo fallback.
+    Supports Supabase JWT tokens, developer persona headers, tab-scoped session IDs, and deterministic demo fallback.
     """
     target_org_id = x_org_id or settings.DEFAULT_ORG_ID
+    user_session: Optional[UserSessionSchema] = None
 
     # 1. Check for explicit role header (Development & Evaluator Persona Switching)
     if x_user_role and x_user_role.lower() in SEEDED_PERSONAS:
         persona = SEEDED_PERSONAS[x_user_role.lower()]
         permissions = ROLE_PERMISSIONS_MAP.get(persona["role"], [])
-        return UserSessionSchema(
+        user_session = UserSessionSchema(
             id=x_user_id or persona["id"],
             org_id=target_org_id,
             org_name=persona["org_name"],
@@ -116,11 +118,11 @@ async def get_current_user(
         )
 
     # 2. Check if specific email provided
-    if x_user_email:
+    elif x_user_email:
         for p in SEEDED_PERSONAS.values():
             if p["email"].lower() == x_user_email.lower():
                 permissions = ROLE_PERMISSIONS_MAP.get(p["role"], [])
-                return UserSessionSchema(
+                user_session = UserSessionSchema(
                     id=x_user_id or p["id"],
                     org_id=target_org_id,
                     org_name=p["org_name"],
@@ -130,15 +132,16 @@ async def get_current_user(
                     permissions=permissions,
                     is_active=True
                 )
+                break
 
     # 3. Handle Bearer token
-    if authorization and authorization.startswith("Bearer "):
+    elif authorization and authorization.startswith("Bearer "):
         token = authorization.split(" ")[1]
         # In demo mode, token may specify a persona name e.g. "dev-admin", "dev-agent", "dev-operator"
         for role_key, persona in SEEDED_PERSONAS.items():
             if role_key in token.lower():
                 permissions = ROLE_PERMISSIONS_MAP.get(persona["role"], [])
-                return UserSessionSchema(
+                user_session = UserSessionSchema(
                     id=persona["id"],
                     org_id=target_org_id,
                     org_name=persona["org_name"],
@@ -148,20 +151,27 @@ async def get_current_user(
                     permissions=permissions,
                     is_active=True
                 )
+                break
 
     # 4. Default Demo Fallback Persona: Maya Patel (Lead Investigator / Incident Operator)
-    default_persona = SEEDED_PERSONAS["lead_investigator"]
-    permissions = ROLE_PERMISSIONS_MAP.get(default_persona["role"], [])
-    return UserSessionSchema(
-        id=default_persona["id"],
-        org_id=target_org_id,
-        org_name=default_persona["org_name"],
-        email=default_persona["email"],
-        full_name=default_persona["full_name"],
-        role=default_persona["role"],
-        permissions=permissions,
-        is_active=True
-    )
+    if not user_session:
+        default_persona = SEEDED_PERSONAS["lead_investigator"]
+        permissions = ROLE_PERMISSIONS_MAP.get(default_persona["role"], [])
+        user_session = UserSessionSchema(
+            id=default_persona["id"],
+            org_id=target_org_id,
+            org_name=default_persona["org_name"],
+            email=default_persona["email"],
+            full_name=default_persona["full_name"],
+            role=default_persona["role"],
+            permissions=permissions,
+            is_active=True
+        )
+
+    if x_tab_id:
+        logger.debug(f"[TabAuth] Tab '{x_tab_id}' authenticated as '{user_session.email}' ({user_session.role})")
+
+    return user_session
 
 def require_role(allowed_roles: List[str]):
     """
