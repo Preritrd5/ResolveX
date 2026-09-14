@@ -129,7 +129,16 @@ class InvestigationService:
         recommended_next_step = final_state.get("recommended_next_step", "Operator manual review required.")
         ai_resp = final_state.get("ai_response")
         findings = final_state.get("agent_findings", [])
-        evidence_list = final_state.get("evidence", [])
+        raw_evidence = final_state.get("evidence", [])
+        
+        # Defensively deduplicate evidence items by ID before persistence
+        seen_ev_ids = set()
+        evidence_list = []
+        for ev in raw_evidence:
+            if ev.id not in seen_ev_ids:
+                seen_ev_ids.add(ev.id)
+                evidence_list.append(ev)
+
         steps = final_state.get("investigation_steps", [])
         runs = final_state.get("agent_runs", [])
         decision = final_state.get("supervisor_decision")
@@ -414,21 +423,28 @@ class InvestigationService:
         ]
 
     async def get_investigation_evidence(self, inv_id: str) -> List[EvidenceItem]:
-        """Retrieves all evidence items attached to an investigation"""
+        """Retrieves all evidence items attached to an investigation (deduplicated by ID)"""
         raw_ev, _ = await repo.list_records("evidence", filters={"investigation_id": inv_id}, limit=50)
-        return [
-            EvidenceItem(
-                id=str(r.get("id")),
-                type=r.get("evidence_type", "order_log"),
-                source_entity_id=r.get("source_entity_id", ""),
-                description=r.get("summary", ""),
-                timestamp=r.get("created_at"),
-                relevance_score=r.get("relevance_score", 0.95),
-                raw_data=r.get("raw_data", {}),
-                sha256_hash=r.get("sha256_hash")
+        seen_ids = set()
+        items = []
+        for r in raw_ev:
+            ev_id = str(r.get("id"))
+            if ev_id in seen_ids:
+                continue
+            seen_ids.add(ev_id)
+            items.append(
+                EvidenceItem(
+                    id=ev_id,
+                    type=r.get("evidence_type", "order_log"),
+                    source_entity_id=r.get("source_entity_id", ""),
+                    description=r.get("summary", ""),
+                    timestamp=r.get("created_at"),
+                    relevance_score=r.get("relevance_score", 0.95),
+                    raw_data=r.get("raw_data", {}),
+                    sha256_hash=r.get("sha256_hash")
+                )
             )
-            for r in raw_ev
-        ]
+        return items
 
     async def get_case_evidence(self, ticket_id: str) -> List[EvidenceItem]:
         """Retrieves verified evidence stored for a ticket (backward-compatible)"""

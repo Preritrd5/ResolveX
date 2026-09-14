@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ReactFlow,
   Background,
@@ -21,7 +21,8 @@ import {
   User,
   Radio,
   ExternalLink,
-  ShieldAlert
+  ShieldAlert,
+  Map
 } from "lucide-react";
 import Link from "next/link";
 
@@ -147,6 +148,8 @@ interface IncidentImpactGraphProps {
 }
 
 export function IncidentImpactGraph({ nodes: initialNodes, edges: initialEdges }: IncidentImpactGraphProps) {
+  const [showMiniMap, setShowMiniMap] = useState(false);
+
   const nodeTypes = useMemo(
     () => ({
       rootCause: RootCauseNode,
@@ -168,7 +171,7 @@ export function IncidentImpactGraph({ nodes: initialNodes, edges: initialEdges }
           <span className="font-bold tracking-tight truncate">Customer Impact &amp; Root Cause Graph</span>
           <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">React Flow Canvas</span>
         </div>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-slate-400">
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 text-[11px] text-slate-400">
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Root Telemetry
           </span>
@@ -184,6 +187,20 @@ export function IncidentImpactGraph({ nodes: initialNodes, edges: initialEdges }
           <span className="flex items-center gap-1.5">
             <span className="w-2.5 h-2.5 rounded-full bg-violet-500"></span> Unreported
           </span>
+
+          <button
+            type="button"
+            onClick={() => setShowMiniMap(!showMiniMap)}
+            className={`ml-1 px-2.5 py-1 rounded-md text-[10px] font-semibold flex items-center gap-1.5 transition-all cursor-pointer border ${
+              showMiniMap
+                ? "bg-[#5052C9] text-white border-[#5052C9] shadow-xs"
+                : "bg-slate-800 hover:bg-slate-700 text-slate-300 border-slate-700"
+            }`}
+            title={showMiniMap ? "Hide Minimap" : "Show Minimap"}
+          >
+            <Map className="w-3 h-3" />
+            <span>{showMiniMap ? "Hide Radar Map" : "Radar Map"}</span>
+          </button>
         </div>
       </div>
 
@@ -198,28 +215,38 @@ export function IncidentImpactGraph({ nodes: initialNodes, edges: initialEdges }
           minZoom={0.2}
           maxZoom={1.5}
           proOptions={{ hideAttribution: true }}
+          colorMode="dark"
         >
           <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#334155" />
-          <Controls className="bg-slate-900 border border-slate-700 text-white fill-white rounded-lg shadow-md!" />
-          <MiniMap
-            nodeColor={(node) => {
-              switch (node.type) {
-                case "rootCause":
-                  return "#f43f5e";
-                case "incidentHub":
-                  return "#6366f1";
-                case "ticket":
-                  return "#3b82f6";
-                case "customer":
-                  return "#10b981";
-                case "unreportedGroup":
-                  return "#a855f7";
-                default:
-                  return "#94a3b8";
-              }
-            }}
-            className="bg-slate-900 border border-slate-800 rounded-lg overflow-hidden!"
-          />
+          <Controls className="!bg-slate-900 !border !border-slate-800 rounded-xl shadow-xl overflow-hidden [&>button]:!bg-slate-900 [&>button]:!border-slate-800 [&>button]:!fill-slate-300 [&>button:hover]:!bg-slate-800 [&>button_svg]:!fill-slate-300" />
+          {showMiniMap && (
+            <MiniMap
+              bgColor="#0b0f19"
+              maskColor="rgba(15, 23, 42, 0.75)"
+              maskStrokeColor="#6366f1"
+              maskStrokeWidth={1.5}
+              nodeColor={(node) => {
+                switch (node.type) {
+                  case "rootCause":
+                    return "#f43f5e";
+                  case "incidentHub":
+                    return "#6366f1";
+                  case "ticket":
+                    return "#3b82f6";
+                  case "customer":
+                    return "#10b981";
+                  case "unreportedGroup":
+                    return "#a855f7";
+                  default:
+                    return "#94a3b8";
+                }
+              }}
+              className="!bg-slate-950/95 !border !border-slate-800 rounded-xl overflow-hidden shadow-2xl backdrop-blur-md"
+              style={{
+                backgroundColor: "#0b0f19"
+              }}
+            />
+          )}
         </ReactFlow>
       </div>
     </div>

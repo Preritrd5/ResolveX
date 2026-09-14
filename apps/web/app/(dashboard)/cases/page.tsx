@@ -209,6 +209,7 @@ export default function CasesPage() {
             <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5052C9]" />
             <input
               type="text"
+              suppressHydrationWarning
               placeholder="Search tickets by #, customer, order, or issue description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -219,6 +220,8 @@ export default function CasesPage() {
           {/* Action Controls */}
           <div className="flex items-center gap-2 shrink-0">
             <button
+              type="button"
+              suppressHydrationWarning
               onClick={() => setShowFiltersPanel(!showFiltersPanel)}
               className={`h-11 px-4 text-xs font-semibold rounded-[12px] border-[1.5px] transition-all flex items-center gap-2 ${
                 showFiltersPanel || activeFilterCount > 0
@@ -236,6 +239,8 @@ export default function CasesPage() {
             </button>
 
             <button
+              type="button"
+              suppressHydrationWarning
               onClick={() => loadTickets(true)}
               disabled={refreshing}
               className="w-11 h-11 rounded-[12px] bg-[#F8F7F3] border-[1.5px] border-[#BDBCB5] text-[#292D40] hover:bg-[#EDEBE5] flex items-center justify-center transition-all disabled:opacity-50 cursor-pointer"

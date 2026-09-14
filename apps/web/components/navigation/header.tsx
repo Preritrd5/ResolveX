@@ -19,7 +19,7 @@ export function Header({ onMenuClick }: HeaderProps) {
 
   return (
     <>
-      <header className="h-[72px] bg-white/80 backdrop-blur-[20px] border-b border-[#D0D7E3]/70 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-30 transition-all shadow-[0_1px_3px_rgba(31,38,135,0.03)]">
+      <header suppressHydrationWarning className="h-[72px] bg-white/80 backdrop-blur-[20px] border-b border-[#D0D7E3]/70 flex items-center justify-between px-4 sm:px-6 lg:px-8 shrink-0 z-30 transition-all shadow-[0_1px_3px_rgba(31,38,135,0.03)]">
         {/* Left: Mobile Menu Toggle & Incident Status Pulse */}
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           {onMenuClick && (
@@ -49,6 +49,8 @@ export function Header({ onMenuClick }: HeaderProps) {
         <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           {/* Global Search Trigger */}
           <button
+            type="button"
+            suppressHydrationWarning
             onClick={() => setSearchOpen(true)}
             className="h-10 w-10 md:w-auto px-0 md:px-3.5 rounded-[11px] bg-white/70 hover:bg-white/95 text-[#464B5E] hover:text-[#24283A] border border-white/90 text-xs transition-all shadow-2xs flex items-center justify-center md:justify-start gap-2.5 cursor-pointer backdrop-blur-md"
             title="Search tickets, incidents, customers, orders (Ctrl+K)"
@@ -69,6 +71,7 @@ export function Header({ onMenuClick }: HeaderProps) {
           <div className="relative pl-3 border-l border-[#D0D7E3]/70">
             <button
               type="button"
+              suppressHydrationWarning
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center gap-2.5 p-1 rounded-xl hover:bg-white/70 transition-colors text-left"
               title="View account & switch role"

@@ -164,4 +164,34 @@
     box-shadow: 0 4px 20px rgba(80, 82, 201, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.9);
     color: #24283A;
   }
+
+  /* React Flow Dark Theme Overrides */
+  .react-flow.dark .react-flow__controls {
+    background-color: #0f172a !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 10px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
+    overflow: hidden !important;
+  }
+  .react-flow.dark .react-flow__controls-button {
+    background-color: #0f172a !important;
+    border-bottom: 1px solid #1e293b !important;
+    color: #cbd5e1 !important;
+    fill: #cbd5e1 !important;
+  }
+  .react-flow.dark .react-flow__controls-button:hover {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    fill: #ffffff !important;
+  }
+  .react-flow.dark .react-flow__controls-button svg {
+    fill: currentColor !important;
+  }
+  .react-flow.dark .react-flow__minimap {
+    background-color: #0b0f19 !important;
+    border: 1px solid #1e293b !important;
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.6) !important;
+  }
 }
+

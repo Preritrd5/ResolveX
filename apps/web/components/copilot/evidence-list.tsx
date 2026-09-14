@@ -32,6 +32,17 @@ interface EvidenceListProps {
 export function EvidenceList({ evidence }: EvidenceListProps) {
   const [selectedItem, setSelectedItem] = useState<EvidenceItem | null>(null);
 
+  // Defensively deduplicate evidence items to prevent duplicate cards and React key collisions
+  const uniqueEvidence = React.useMemo(() => {
+    const seen = new Set<string>();
+    return (evidence || []).filter((item, idx) => {
+      const key = item.id || `evidence-${idx}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+  }, [evidence]);
+
   const getIcon = (type: string) => {
     switch (type) {
       case "payment_record":
@@ -48,7 +59,7 @@ export function EvidenceList({ evidence }: EvidenceListProps) {
     }
   };
 
-  if (evidence.length === 0) {
+  if (uniqueEvidence.length === 0) {
     return (
       <div className="p-3 bg-slate-50 border border-slate-200/60 rounded text-xs text-slate-400 italic">
         No verified evidence recorded yet. Run analysis to audit transactions and telemetry.
@@ -58,9 +69,9 @@ export function EvidenceList({ evidence }: EvidenceListProps) {
 
   return (
     <div className="space-y-2">
-      {evidence.map((item) => (
+      {uniqueEvidence.map((item, index) => (
         <div
-          key={item.id}
+          key={`${item.id || "evidence"}-${index}`}
           className="p-3 bg-white border border-slate-200/90 rounded-md shadow-xs hover:border-indigo-300 transition-colors space-y-1.5"
         >
           <div className="flex items-center justify-between">

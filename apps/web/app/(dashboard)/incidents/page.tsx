@@ -207,6 +207,7 @@ export default function IncidentsPage() {
             <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#464B5E]" />
             <input
               type="text"
+              suppressHydrationWarning
               placeholder="Search incidents, numbers or root causes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

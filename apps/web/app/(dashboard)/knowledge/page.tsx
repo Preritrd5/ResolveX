@@ -109,6 +109,7 @@ export default function KnowledgePage() {
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#73778B]" />
             <input
               type="text"
+              suppressHydrationWarning
               placeholder="Search policy knowledge base via ChromaDB RAG (e.g. 'refund clearinghouse delay', 'webhook drop SLA')..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}

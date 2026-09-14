@@ -73,6 +73,7 @@ export default function CustomersPage() {
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#464B5E]" />
           <input
             type="text"
+            suppressHydrationWarning
             placeholder="Search by customer name, email, or external ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
